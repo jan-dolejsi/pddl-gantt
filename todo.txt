@@ -1,0 +1,6 @@
+https://npm.io/package/strips
+https://npm.io/package/libresky-gantt
+https://npm.io/package/jshop
+
+https://npm.io/package/gantt-chart
+https://www.npmjs.com/package/virtual-dom

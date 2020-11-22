@@ -1,0 +1,7 @@
+dist/
+node_modules/
+out/
+out-sample/
+
+# npm
+*-*.tgz
