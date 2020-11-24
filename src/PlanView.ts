@@ -58,7 +58,6 @@ export class PlanView {
     }
 
     showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
-        console.log('line plots shown');
         if (this.lineCharts) {
             this.lineCharts.querySelector(".loader")?.remove();
             this.addLinePlot(title, yAxisUnit, objects, data);
@@ -199,10 +198,10 @@ export class PlanView {
             return document.createTextNode(actionName);
         }
         else {
-            const revealActionUri = encodeURI('command:pddl.revealAction?' + JSON.stringify([plan.domain.fileUri, actionName]));
             const a = document.createElement("a");
-            a.href = revealActionUri;
-            a.title = "Reveal '${actionName}' action in the domain file";
+            a.href = '#';
+            a.onclick = (): void => this.onActionSelected(actionName)
+            a.title = `Reveal '${actionName}' action in the domain file`;
             a.innerText = actionName;
             return a;
         }

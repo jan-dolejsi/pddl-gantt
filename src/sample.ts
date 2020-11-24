@@ -11,7 +11,7 @@ import { parser } from "pddl-workspace";
 // }
 
 function onActionSelected(actionName: string): void {
-    // todo: postMessage({ "command": "selectPlan", "planIndex": planIndex});
+    // const revealActionUri = encodeURI('command:pddl.revealAction?' + JSON.stringify([plan.domain.fileUri, actionName]));
     console.log(`Action selected: ${actionName}`);
 }
 
@@ -23,6 +23,7 @@ function onHelpfulActionSelected(actionName: string): void {
 function onLinePlotsVisible(plan: Plan, planView: PlanView): void {
     console.log(`Render charts using mock data ${plan}`);
     setTimeout(() => planView.showPlanLinePlots("distance", "km", ["driver1", "driver2"], [[1, 10, 13], [2, 20, 7], [5, 15, 10]]), 1000);
+    setTimeout(() => planView.showPlanLinePlots("fuel", "l", ["truck1", "truck2", "truck3"], [[1, 4, 6, 4], [4, 3, 5, 3], [6, 7, 8, 2]]), 2000);
 }
 
 let planView: PlanView | undefined;
