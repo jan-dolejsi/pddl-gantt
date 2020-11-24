@@ -20,13 +20,20 @@ function onHelpfulActionSelected(actionName: string): void {
     console.log(`Helpful action selected: ${actionName}`);
 }
 
+function onLinePlotsVisible(plan: Plan, planView: PlanView): void {
+    console.log(`Render charts using mock data ${plan}`);
+    setTimeout(() => planView.showPlanLinePlots("distance", "km", ["driver1", "driver2"], [[1, 10, 13], [2, 20, 7], [5, 15, 10]]), 1000);
+}
+
 let planView: PlanView | undefined;
 
 const EPSILON = 1e-3;
 
 function initialize() {
     const width = parseInt(document.getElementById("planViewWidth")?.getAttribute("value") ?? "400");
-    planView = createPlanView("plan", onActionSelected, onHelpfulActionSelected, { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
+    planView = createPlanView("plan", onActionSelected, onHelpfulActionSelected,
+        onLinePlotsVisible,
+        { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
 }
 
 async function addPlan() {

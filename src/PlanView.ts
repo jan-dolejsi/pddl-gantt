@@ -6,6 +6,7 @@
  /* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction } from "pddl-workspace";
+import { drawChart, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
 import { PlanVizSettings } from "./PlanVizSettings";
 import { SwimLane } from "./SwimLane";
@@ -14,6 +15,7 @@ export interface PlanViewOptions {
     epsilon: number;
     displayWidth: number;
     disableSwimlanes?: boolean;
+    disableLinePlots?: boolean;
     selfContained?: boolean;
 }
 
@@ -21,12 +23,14 @@ const DIGITS = 4;
 
 export class PlanView {
 
-    host: HTMLElement;
-    planStepHeight = 20;
+    private host: HTMLElement;
+    private planStepHeight = 20;
+    private lineCharts: HTMLDivElement | undefined;
 
     constructor(hostElementId: string,
         private readonly onActionSelected: (actionName: string) => void,
         private readonly onHelpfulActionSelected: (actionName: string) => void, 
+        private readonly onLinePlotsVisible: (plan: Plan, planView: PlanView) => void, 
         private readonly options: PlanViewOptions) {
         const host = document.getElementById(hostElementId);
         if (host === null) {
@@ -48,6 +52,17 @@ export class PlanView {
 
         const swimLanes = this.getOrCreateBlankChildElement('resourceUtilization');
         this.showSwimLanes(swimLanes, plan, settings);
+
+        this.lineCharts = this.getOrCreateBlankChildElement('lineCharts');
+        this.activateLineChartPlaceholder(this.lineCharts, plan);
+    }
+
+    showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
+        console.log('line plots shown');
+        if (this.lineCharts) {
+            this.lineCharts.querySelector(".loader")?.remove();
+            this.addLinePlot(title, yAxisUnit, objects, data);
+        }
     }
 
     private getOrCreateBlankChildElement(className: string): HTMLDivElement {
@@ -63,7 +78,7 @@ export class PlanView {
         child.className = className;
         return this.host.appendChild(child);
     }
-
+    
     private showGantt(ganttDiv: HTMLDivElement, plan: Plan, stepsToDisplay: PlanStep[], planIndex: number): void {
         // split this to two batches and insert helpful actions in between
         const planHeadSteps = stepsToDisplay
@@ -452,6 +467,56 @@ export class PlanView {
         tdLane.appendChild(div);
     }
 
+    private activateLineChartPlaceholder(lineCharts: HTMLDivElement, plan: Plan): void {
+        if (this.options.disableLinePlots || !plan.domain || !plan.problem) {
+            return;
+        }
+
+        if (isInViewport(lineCharts)) {
+            this.onLinePlotsVisible(plan, this);
+        }
+        else {
+            this.addLoader(lineCharts);
+            // eslint-disable-next-line @typescript-eslint/no-this-alias
+            const planView = this;
+            document.addEventListener('scroll', function handleScrollEvent() {
+                const lineChartVisible = isInViewport(lineCharts);
+        
+                if (lineChartVisible) {
+                    planView.onLinePlotsVisible(plan, planView);
+                    // unsubscribe the scroll events
+                    document.removeEventListener("scroll", handleScrollEvent)
+                }
+            }, {
+                passive: true
+            });
+        }
+    }
+
+    private addLoader(lineCharts: HTMLDivElement): void {
+        // <div class="loader"></div>
+        const loader = document.createElement("div");
+        loader.className = "loader";
+        lineCharts.appendChild(loader);
+    }
+
+    private addLinePlot(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
+        const linePlot = document.createElement("div");
+        linePlot.className = "lineChart";
+
+        linePlot.style.width = px(this.options.displayWidth + 100);
+        linePlot.style.height = px(Math.round(this.options.displayWidth / 2));
+
+        this.lineCharts?.appendChild(linePlot);
+
+        if (!this.options.selfContained) {
+            drawChart(linePlot, title, yAxisUnit, objects, data);
+        } else {
+            console.error("Line plots are not implemented in self-contained mode.");
+            // todo: lineChartScripts += `        drawChart('${chartDivId}', '${chartTitleWithUnit}', '', ${JSON.stringify(values.legend)}, ${JSON.stringify(values.values)}, ${this.options.displayWidth});\n`;
+        }
+    }
+
 }
 
 function px(valueInPx: number): string {
@@ -460,7 +525,9 @@ function px(valueInPx: number): string {
 
 export function createPlanView(hostElementId: string, onActionSelected: (actionName: string) => void,
     onHelpfulActionSelected: (actionName: string) => void, 
+    onLinePlotsVisible: (plan: Plan) => void,
     options: PlanViewOptions): PlanView {
-    return new PlanView(hostElementId, onActionSelected, onHelpfulActionSelected, options);
+    return new PlanView(hostElementId, onActionSelected, onHelpfulActionSelected,
+        onLinePlotsVisible, options);
 }
 

@@ -52,6 +52,8 @@ class PlansView {
         // let style = div.getAttribute("style");
         // style = style?.replace(/display: (none|block);/i, "display: " + newDisplayStyle + ';');
         // div.setAttribute("style", style);
+
+        // todo: if line plots were not displayed yet, subscribe to the scrolling event
     }
 
     scrollPlanSelectorIntoView(planIndex: number): void {

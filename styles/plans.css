@@ -1,7 +1,8 @@
 div.gantt {
     position: relative;
-    margin: 5px; 
+    margin: 5px;
 }
+
 div.planstep {
     position: absolute;
     white-space: pre;
@@ -41,6 +42,7 @@ a:hover {
 a:active {
     text-decoration: underline;
 }
+
 .planSelector {
     margin: 3px;
     width: 50px;
@@ -49,17 +51,21 @@ a:active {
     border: transparent 2px solid;
     font-family: sans-serif;
 }
+
 .planSelector-selected {
     border: 2px solid lightgray;
 }
+
 .planSelector:hover {
     border: 2px solid darkgray;
 }
+
 .planMetricBar {
     background-color: lightgreen;
 }
+
 .planSelectors {
-    margin: 5px; 
+    margin: 5px;
     display: flex;
     align-items: flex-end;
     overflow: auto;
@@ -77,8 +83,53 @@ td.objectName {
 th.actionToolTip, td.actionToolTip {
     border-bottom-style: none;
 }
+
 div.hint {
     opacity: 60%;
 }
+
 /* https://iros.github.io/patternfills/sample_css.html */
-.whitecarbon { background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB3aWR0aD0nNicgaGVpZ2h0PSc2Jz4KICA8cmVjdCB3aWR0aD0nNicgaGVpZ2h0PSc2JyBmaWxsPScjZWVlZWVlJy8+CiAgPGcgaWQ9J2MnPgogICAgPHJlY3Qgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nI2U2ZTZlNicvPgogICAgPHJlY3QgeT0nMScgd2lkdGg9JzMnIGhlaWdodD0nMicgZmlsbD0nI2Q4ZDhkOCcvPgogIDwvZz4KICA8dXNlIHhsaW5rOmhyZWY9JyNjJyB4PSczJyB5PSczJy8+Cjwvc3ZnPg=="); background-repeat: repeat; }
+
+.whitecarbon {
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHhtbG5zOnhsaW5rPSdodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rJyB3aWR0aD0nNicgaGVpZ2h0PSc2Jz4KICA8cmVjdCB3aWR0aD0nNicgaGVpZ2h0PSc2JyBmaWxsPScjZWVlZWVlJy8+CiAgPGcgaWQ9J2MnPgogICAgPHJlY3Qgd2lkdGg9JzMnIGhlaWdodD0nMycgZmlsbD0nI2U2ZTZlNicvPgogICAgPHJlY3QgeT0nMScgd2lkdGg9JzMnIGhlaWdodD0nMicgZmlsbD0nI2Q4ZDhkOCcvPgogIDwvZz4KICA8dXNlIHhsaW5rOmhyZWY9JyNjJyB4PSczJyB5PSczJy8+Cjwvc3ZnPg==");
+    background-repeat: repeat;
+}
+
+/* CHARTS */
+
+div.lineCharts {
+    /* ensure it is visible, when scrolling to it */
+    min-height: 100px;
+    margin-top: 20px;
+}
+
+.loader {
+    border: 5px solid #f3f3f3;
+    border-radius: 50%;
+    opacity: 0.75;
+    border-top: 5px solid blue;
+    border-right: 5px solid green;
+    border-bottom: 5px solid red;
+    width: 30px;
+    height: 30px;
+    -webkit-animation: spin 2s linear infinite;
+    animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
