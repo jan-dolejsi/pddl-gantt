@@ -2,13 +2,14 @@
 // @ts-nocheck
 
 import { createPlanView, PlanView } from "./PlanView";
+import { createPlansView, PlansView } from "./PlansView";
 import { JsonPlanVizSettings } from "./JsonPlanVizSettings";
 import { parser } from "pddl-workspace";
 
-// function onPlanSelected(planIndex: number): void {
+function onPlanSelected(planIndex: number): void {
     // todo: postMessage({ "command": "selectPlan", "planIndex": planIndex});
-//     console.log(`Plan selected: ${planIndex}`);
-// }
+    console.log(`Plan selected: ${planIndex}`);
+}
 
 function onActionSelected(actionName: string): void {
     // const revealActionUri = encodeURI('command:pddl.revealAction?' + JSON.stringify([plan.domain.fileUri, actionName]));
@@ -27,14 +28,17 @@ function onLinePlotsVisible(plan: Plan, planView: PlanView): void {
 }
 
 let planView: PlanView | undefined;
+let plansView: PlansView | undefined;
 
 const EPSILON = 1e-3;
 
 function initialize() {
     const width = parseInt(document.getElementById("planViewWidth")?.getAttribute("value") ?? "400");
     planView = createPlanView("plan", onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible,
-        { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
+        onLinePlotsVisible, { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
+
+    plansView = createPlansView("plans", onPlanSelected, onActionSelected, onHelpfulActionSelected,
+        onLinePlotsVisible, { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
 }
 
 async function addPlan() {
@@ -49,7 +53,9 @@ async function addPlan() {
     
     const planInfo = parser.PddlPlanParser.parseText(planText, EPSILON);
 
-    planView?.showPlan(planInfo.getPlan(domain, problem), 0, new JsonPlanVizSettings(JSON.parse(settingsText)));
+    const settings = new JsonPlanVizSettings(JSON.parse(settingsText));
+    planView?.showPlan(planInfo.getPlan(domain, problem), 0, settings);
+    plansView?.showPlan(planInfo.getPlan(domain, problem), 0, settings);
 }
 
 document.getElementById("addPlan").onclick = addPlan

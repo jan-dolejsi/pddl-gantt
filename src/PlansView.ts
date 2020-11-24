@@ -3,18 +3,25 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  * ------------------------------------------------------------------------------------------ */
 
+import { Plan } from "pddl-workspace";
 import { PlanViewOptions } from "./PlanView";
 
 class PlansView {
     private selectedPlan = Number.NaN;
 
-    constructor(hostElementId: string, private readonly onPlanSelected: (planIndex: number) => void, private readonly options: PlanViewOptions) {
+    constructor(hostElementId: string,
+        private readonly onPlanSelected: (planIndex: number) => void,
+        private readonly onActionSelected: (actionName: string) => void,
+        private readonly onHelpfulActionSelected: (actionName: string) => void,
+        private readonly onLinePlotsVisible: (plan: Plan) => void,
+        private readonly options: PlanViewOptions) {
+        
         const host = document.getElementById(hostElementId);
         if (host === null) {
             throw new Error(`Element with id#${hostElementId} not found in the document.`);
         }
 
-        host.innerText = JSON.stringify(options);
+        host.innerText = JSON.stringify(this.options);
     }
 
     setSelectedPlan(newSelectedPlan: number): void {
@@ -26,6 +33,7 @@ class PlansView {
     }
 
     showPlan(planIndex: number): void {
+        return;
         this.setSelectedPlan(planIndex);
         document.querySelectorAll("div.stateView").forEach(div => this.showPlanDiv(planIndex, div));
         document.querySelectorAll("div.gantt").forEach(div => this.showPlanDiv(planIndex, div));
@@ -66,7 +74,12 @@ class PlansView {
 
 }
 
-export function createPlansView(hostElementId: string, onPlanSelected: (planIndex: number) => void, options: PlanViewOptions): void {
-    // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    new PlansView(hostElementId, onPlanSelected, options);
+export function createPlansView(hostElementId: string, onPlanSelected: (planIndex: number) => void,
+    onActionSelected: (actionName: string) => void,
+    onHelpfulActionSelected: (actionName: string) => void,
+    onLinePlotsVisible: (plan: Plan) => void,
+    options: PlanViewOptions): PlansView {
+
+    return new PlansView(hostElementId, onPlanSelected, onActionSelected, onHelpfulActionSelected,
+        onLinePlotsVisible, options);
 }
