@@ -1,6 +1,7 @@
 const path = require('path');
 
-module.exports = {
+/** @type {import('webpack').Configuration} */
+const config = {
   entry: './src/index.ts',
   devtool: 'inline-source-map',
   module: {
@@ -25,7 +26,20 @@ module.exports = {
     fallback: { "path": false, "timers": false, "events": false, "buffer": false, "fs": false, "stream": false, "child_process": false }
   },
   output: {
-    filename: 'index.js',
     path: path.resolve(__dirname, 'dist'),
+    filename: 'index.js',
+    library: 'pddlGantt',
+    libraryTarget: 'var',
   },
+  // externals: {
+  //   'pddl-workspace': {
+  //     commonjs: 'pddl-workspace',
+  //     commonjs2: 'pddl-workspace',
+  //     amd: 'pddl-workspace',
+  //     root: 'pddlWorkspace',
+  //     // root: 'index.js', // what is this for? for 'lodash' it is '_'
+  //   }
+  // },
 };
+
+module.exports = config;

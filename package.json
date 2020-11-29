@@ -7,9 +7,10 @@
   "scripts": {
     "test": "mocha -- out/test/*.js",
     "pretest": "eslint ./src/*.ts && npm run compile",
-    "build": "tsc",
-    "compile": "webpack --config webpack.config.js",
-    "prepack": "npm run test",
+    "compile": "tsc",
+    "bundle": "webpack --config webpack.config.js",
+    "bundleDev": "webpack --config webpack.config.js --mode development",
+    "prepack": "npm run test && npm run bundle",
     "compileSample": "browserify src/PlanView.ts src/sample.ts -p tsify > out-sample/sample.js",
     "watchSample": "watchify src/PlanView.ts src/sample.ts -p tsify -o out-sample/sample.js --verbose",
     "watch": "tsc -w"

@@ -9,6 +9,12 @@
             "request": "launch",
             "name": "Open test.html",
             "file": "${workspaceFolder}/sample/sample.html"
-        }
+        },
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open sample2.html",
+            "file": "${workspaceFolder}/sample_webpack/sample.html"
+        },
     ]
 }

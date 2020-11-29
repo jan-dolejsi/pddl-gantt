@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample</title>
+
+    <link rel="stylesheet" type="text/css" href="sample.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/plans.css" />
+    <link rel="stylesheet" type="text/css" href="../styles/plan-resource-task.css" />
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- <script src="https://unpkg.com/vscode-uri"></script> -->
+    <script>
+        // console.log(vscodeUri);
+    </script>
+    <!-- <script src="https://unpkg.com/pddl-workspace"></script> -->
+    <script src="../../pddl-workspace/dist/index.js"></script>
+    <script src="../dist/index.js"></script>
+    <script defer src="sample.js"></script>
+</head>
+
+<body>
+    <table width="100%">
+        <tr>
+            <th>Domain</th>
+            <th>Problem</th>
+        </tr>
+        <tr>
+            <td width="50%">
+                <textarea id="domainText">
+(define (domain driverlog)
+(:requirements :typing :durative-actions) 
+(:types           location locatable - object
+        driver truck obj - locatable)
+
+(:predicates 
+        (at ?obj - locatable ?loc - location)
+        (in ?obj1 - obj ?obj - truck)
+        (driving ?d - driver ?v - truck)
+        (link ?x ?y - location) (path ?x ?y - location)
+        (empty ?v - truck)
+)
+
+(:durative-action LOAD-TRUCK
+:parameters
+    (?obj - obj
+    ?truck - truck
+    ?loc - location)
+:duration (= ?duration 2)
+:condition
+    (and 
+    (over all (at ?truck ?loc)) (at start (at ?obj ?loc)))
+:effect
+    (and (at start (not (at ?obj ?loc))) (at end (in ?obj ?truck))))
+
+(:durative-action UNLOAD-TRUCK
+:parameters
+    (?obj - obj
+    ?truck - truck
+    ?loc - location)
+:duration (= ?duration 2)
+:condition
+    (and
+        (over all (at ?truck ?loc)) (at start (in ?obj ?truck)))
+:effect
+    (and (at start (not (in ?obj ?truck))) (at end (at ?obj ?loc))))
+
+(:durative-action BOARD-TRUCK
+:parameters
+    (?driver - driver
+    ?truck - truck
+    ?loc - location)
+:duration (= ?duration 1)
+:condition
+    (and 
+    (over all (at ?truck ?loc)) (at start (at ?driver ?loc)) 
+    (at start (empty ?truck)))
+:effect
+    (and (at start (not (at ?driver ?loc))) 
+    (at end (driving ?driver ?truck)) (at start (not (empty ?truck)))))
+
+(:durative-action DISEMBARK-TRUCK
+:parameters
+    (?driver - driver
+    ?truck - truck
+    ?loc - location)
+:duration (= ?duration 1)
+:condition
+    (and (over all (at ?truck ?loc)) (at start (driving ?driver ?truck)))
+:effect
+    (and (at start (not (driving ?driver ?truck))) 
+    (at end (at ?driver ?loc)) (at end (empty ?truck))))
+
+(:durative-action DRIVE-TRUCK
+:parameters
+    (?truck - truck
+    ?loc-from - location
+    ?loc-to - location
+    ?driver - driver)
+:duration (= ?duration 10)
+:condition
+    (and (at start (at ?truck ?loc-from))
+    (over all (driving ?driver ?truck)) (at start (link ?loc-from ?loc-to)))
+:effect
+    (and (at start (not (at ?truck ?loc-from))) 
+    (at end (at ?truck ?loc-to))))
+
+(:durative-action WALK
+:parameters
+    (?driver - driver
+    ?loc-from - location
+    ?loc-to - location)
+:duration (= ?duration 20)
+:condition
+    (and (at start (at ?driver ?loc-from)) 
+    (at start (path ?loc-from ?loc-to)))
+:effect
+    (and (at start (not (at ?driver ?loc-from)))
+    (at end (at ?driver ?loc-to))))
+
+)
+                  
+                </textarea>
+            </td>
+            <td width="50%">
+                <textarea id="problemText">
+(define (problem DLOG-2-2-3)
+	(:domain driverlog)
+	(:objects
+	driver1 - driver
+	driver2 - driver
+	truck1 - truck
+	truck2 - truck
+	package1 - obj
+	package2 - obj
+	package3 - obj
+	s0 - location
+	s1 - location
+	s2 - location
+	p0-1 - location
+	p0-2 - location
+	p1-0 - location
+	p2-1 - location
+	)
+	(:init
+	(at driver1 s0)
+	(at driver2 s0)
+	(at truck1 s0)
+	(empty truck1)
+	(at truck2 s1)
+	(empty truck2)
+	(at package1 s2)
+	(at package2 s1)
+	(at package3 s1)
+	(path s0 p0-1)
+	(path p0-1 s0)
+	(path s1 p0-1)
+	(path p0-1 s1)
+	(path s0 p0-2)
+	(path p0-2 s0)
+	(path s2 p0-2)
+	(path p0-2 s2)
+	(path s2 p2-1)
+	(path p2-1 s2)
+	(path s1 p2-1)
+	(path p2-1 s1)
+	(link s0 s2)
+	(link s2 s0)
+	(link s1 s0)
+	(link s0 s1)
+	(link s1 s2)
+	(link s2 s1)
+)
+	(:goal (and
+	(at driver1 s1)
+	(at driver2 s1)
+	(at truck1 s2)
+	(at truck2 s0)
+	(at package1 s0)
+	(at package2 s2)
+	(at package3 s0)
+	))
+
+(:metric minimize (total-time))
+
+)
+
+                </textarea>
+            </td>
+        </tr>
+        <tr>
+            <th>Plan</th>
+            <th>Options</th>
+        </tr>
+        <tr>
+            <td>
+                <textarea id="planText" width="100%">
+Metric: 126.010
+0.0010: (board-truck driver1 truck1 s0)  [1.0000]
+0.0010: (load-truck package2 truck2 s1)  [2.0000]
+0.0010: (load-truck package3 truck2 s1)  [2.0000]
+0.0010: (walk driver2 s0 p0-1)  [20.0000]
+1.0020: (drive-truck truck1 s0 s2 driver1)  [10.0000]
+11.0030: (load-truck package1 truck1 s2)  [2.0000]
+13.0030: (drive-truck truck1 s2 s0 driver1)  [10.0000]
+20.0020: (walk driver2 p0-1 s1)  [20.0000]
+23.0040: (unload-truck package1 truck1 s0)  [2.0000]
+25.0040: (drive-truck truck1 s0 s2 driver1)  [10.0000]
+35.0050: (drive-truck truck1 s2 s1 driver1)  [10.0000]
+40.0030: (board-truck driver2 truck2 s1)  [1.0000]
+41.0040: (drive-truck truck2 s1 s0 driver2)  [10.0000]
+45.0060: (drive-truck truck1 s1 s2 driver1)  [10.0000]
+51.0050: (unload-truck package3 truck2 s0)  [2.0000]
+53.0050: (drive-truck truck2 s0 s2 driver2)  [10.0000]
+55.0070: (disembark-truck driver1 truck1 s2)  [1.0000]
+56.0080: (walk driver1 s2 p2-1)  [20.0000]
+63.0060: (unload-truck package2 truck2 s2)  [2.0000]
+65.0060: (drive-truck truck2 s2 s1 driver2)  [10.0000]
+75.0070: (drive-truck truck2 s1 s0 driver2)  [10.0000]
+76.0090: (walk driver1 p2-1 s1)  [20.0000]
+85.0080: (disembark-truck driver2 truck2 s0)  [1.0000]
+86.0090: (walk driver2 s0 p0-1)  [20.0000]
+106.0100: (walk driver2 p0-1 s1)  [20.0000]                    
+                </textarea>
+            </td>
+            <td>
+                <textarea id="settings">
+{
+    "excludeActions": [
+        "^load"
+    ],
+    "ignoreActionParameters": [
+        {
+            "action": "^(WALK|DRIVE)",
+            "parameterPattern": "loc-from"
+        }
+    ]
+}
+                    </textarea>
+            </td>
+        </tr>
+    </table>
+    
+    <label for="planViewWidth">Plan width (in px):</label>
+    <input type="number" id="planViewWidth" name="planViewWidth" min="200" value="400" disabled>
+  
+    <button id="addPlan">Add plan</button>
+
+    <table width="100%">
+        <tr>
+            <th>Single plan view</th>
+            <th>Multiple plan view</th>
+        </tr>
+        <tr>
+            <td><div id="plan"></div></td>
+            <td><div id="plans"></div></td>
+        </tr>
+    </table>
+    
+</body>
+
+</html>

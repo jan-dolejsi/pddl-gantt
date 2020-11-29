@@ -5,3 +5,6 @@ src/
 test/
 out/
 *-*.tgz
+*.*
+!dist/*.*
+!styles/*.*

@@ -25,6 +25,8 @@ const planInfo = parser.PddlPlanParser.parseText(planText, 1e-3);
 planView.showPlan(planInfo.getPlan(), 0);
 ```
 
+The `pddl-gantt` library expects the `pddl-workspace` as a peer dependency to be also imported by the consumer.
+
 ## Compiling and contribution
 
 To compile the component, run `npm run compile`.

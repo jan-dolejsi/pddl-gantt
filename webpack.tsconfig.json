@@ -1,6 +1,9 @@
 {
     "extends": "./tsconfig.json",
     "compilerOptions": {
+        // "module": "es6",
+        "module": "commonjs", 
+        "declaration": true,
         "outDir": "dist"
     },
     "exclude": [
