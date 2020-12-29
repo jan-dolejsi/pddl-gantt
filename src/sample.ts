@@ -4,7 +4,7 @@
 import { createPlanView, PlanView } from "./PlanView";
 import { createPlansView, PlansView } from "./PlansView";
 import { JsonPlanVizSettings } from "./JsonPlanVizSettings";
-import { parser } from "pddl-workspace";
+import { parser, Plan, HappeningType, utils } from "pddl-workspace";
 
 function onPlanSelected(planIndex: number): void {
     // todo: postMessage({ "command": "selectPlan", "planIndex": planIndex});
@@ -34,11 +34,11 @@ const EPSILON = 1e-3;
 
 function initialize() {
     const width = parseInt(document.getElementById("planViewWidth")?.getAttribute("value") ?? "400");
-    planView = createPlanView("plan", onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible, { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
+    planView = createPlanView("plan", { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON },
+        onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
 
-    plansView = createPlansView("plans", onPlanSelected, onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible, { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON });
+    plansView = createPlansView("plans", { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON },
+        onPlanSelected, onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
 }
 
 async function addPlan() {
@@ -54,8 +54,16 @@ async function addPlan() {
     const planInfo = parser.PddlPlanParser.parseText(planText, EPSILON);
 
     const settings = new JsonPlanVizSettings(JSON.parse(settingsText));
-    planView?.showPlan(planInfo.getPlan(domain, problem), 0, settings);
-    plansView?.showPlan(planInfo.getPlan(domain, problem), 0, settings);
+
+    const now = parseFloat(document.getElementById("now")?.value ?? "");
+    
+    const plan = new Plan(planInfo.getSteps(), domain, problem, now, [{ actionName: 'helpful1', kind: HappeningType.INSTANTANEOUS }]);
+    
+    // simulate the plan sent over JSON message
+    const reHydratedPlan = Plan.clone(JSON.parse(JSON.stringify(utils.serializationUtils.makeSerializable(plan))));
+
+    planView?.showPlan(reHydratedPlan, 0, settings);
+    plansView?.showPlan(reHydratedPlan, 0, settings);
 }
 
 document.getElementById("addPlan").onclick = addPlan

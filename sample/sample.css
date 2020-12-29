@@ -1,5 +1,6 @@
 td {
     padding-right: 10px;
+    vertical-align: top;
 }
 textarea {
     width: 100%;

@@ -28,10 +28,10 @@ export class PlanView {
     private lineCharts: HTMLDivElement | undefined;
 
     constructor(hostElementId: string,
-        private readonly onActionSelected: (actionName: string) => void,
-        private readonly onHelpfulActionSelected: (actionName: string) => void, 
-        private readonly onLinePlotsVisible: (plan: Plan, planView: PlanView) => void, 
-        private readonly options: PlanViewOptions) {
+        private readonly options: PlanViewOptions,
+        private readonly onActionSelected?: (actionName: string) => void,
+        private readonly onHelpfulActionSelected?: (actionName: string) => void, 
+        private readonly onLinePlotsVisible?: (plan: Plan, planView: PlanView) => void) {
         const host = document.getElementById(hostElementId);
         if (host === null) {
             throw new Error(`Element with id#${hostElementId} not found in the document.`);
@@ -67,7 +67,8 @@ export class PlanView {
     private getOrCreateBlankChildElement(className: string): HTMLDivElement {
         const el = this.host.querySelector<HTMLDivElement>('.' + className);
         if (el) {
-            el.childNodes.forEach(child => child.remove());
+            el.innerHTML = '';
+            // only removes half the children: el.childNodes.forEach(child => child.remove());
         }
         return el ?? this.createChildElement(className);
     }
@@ -154,7 +155,7 @@ export class PlanView {
 
             plan.helpfulActions
                 ?.forEach((helpfulAction, index) =>
-                    this.renderHelpfulAction(ganttDiv, index, helpfulAction));
+                    this.renderHelpfulAction(helpfulActions, index, helpfulAction));
 
             ganttDiv.appendChild(helpfulActions);
         }
@@ -168,7 +169,7 @@ export class PlanView {
 
         const a = document.createElement("a");
         a.href = "#";
-        a.onclick = (): void => this.onHelpfulActionSelected(helpfulAction.actionName);
+        a.onclick = (): void => this.onHelpfulActionSelected?.(helpfulAction.actionName);
         a.innerHTML = beautifiedName;
         
         helpfulActions.appendChild(a);
@@ -200,7 +201,7 @@ export class PlanView {
         else {
             const a = document.createElement("a");
             a.href = '#';
-            a.onclick = (): void => this.onActionSelected(actionName)
+            a.onclick = (): void => this.onActionSelected?.(actionName);
             a.title = `Reveal '${actionName}' action in the domain file`;
             a.innerText = actionName;
             return a;
@@ -298,12 +299,15 @@ export class PlanView {
     private computePlanHeadDuration(step: PlanStep, plan: Plan): number {
         if (plan.now === undefined) { return step.getDuration() ?? this.options.epsilon; }
         else if (step.getEndTime() < plan.now) {
-            if (step.commitment === PlanStepCommitment.Committed) { return step.getDuration() ?? this.options.epsilon; }
+            if (step.commitment === undefined || step.commitment === PlanStepCommitment.Committed) {
+                return step.getDuration() ?? this.options.epsilon;
+            }
             else { return 0; } // the end was not committed yet
         }
         else if (step.getStartTime() >= plan.now) { return 0; }
         else {
             switch (step.commitment) {
+                case undefined:
                 case PlanStepCommitment.Committed:
                     return step.getDuration() ?? this.options.epsilon;
                 case PlanStepCommitment.EndsInRelaxedPlan:
@@ -329,6 +333,7 @@ export class PlanView {
 
     private isPlanHeadStep(step: PlanStep, timeNow: number | undefined): boolean {
         return timeNow === undefined ||
+            step.commitment === undefined ||
             step.commitment === PlanStepCommitment.Committed ||
             step.commitment === PlanStepCommitment.EndsInRelaxedPlan;
     }
@@ -429,7 +434,7 @@ export class PlanView {
        
         plan.steps
             .filter(step => PlanView.shouldDisplayObject(step, obj, plan.domain, settings))
-            .forEach(step => this.renderSwimLameStep(tdLane, step, plan, obj, subLanes));
+            .forEach(step => this.renderSwimLaneStep(tdLane, step, plan, obj, subLanes));
 
         // now size the row appropriately
         tdLane.style.height = px(subLanes.laneCount() * this.planStepHeight);
@@ -438,7 +443,7 @@ export class PlanView {
         table.appendChild(tr);
     }
 
-    private renderSwimLameStep(tdLane: HTMLTableDataCellElement, step: PlanStep, plan: Plan, thisObj: string, swimLanes: SwimLane): void {
+    private renderSwimLaneStep(tdLane: HTMLTableDataCellElement, step: PlanStep, plan: Plan, thisObj: string, swimLanes: SwimLane): void {
         const actionColor = this.getActionColor(step, plan.domain);
         const leftOffset = this.computeLeftOffset(step, plan);
         const planHeadDuration = this.computePlanHeadDuration(step, plan);
@@ -466,13 +471,18 @@ export class PlanView {
         tdLane.appendChild(div);
     }
 
+    /**
+     * Line plots get populated lazily, when they get scrolled to the view.
+     * @param lineCharts line chart element
+     * @param plan plan being displayed
+     */
     private activateLineChartPlaceholder(lineCharts: HTMLDivElement, plan: Plan): void {
         if (this.options.disableLinePlots || !plan.domain || !plan.problem) {
             return;
         }
 
         if (isInViewport(lineCharts)) {
-            this.onLinePlotsVisible(plan, this);
+            this.onLinePlotsVisible?.(plan, this);
         }
         else {
             this.addLoader(lineCharts);
@@ -482,7 +492,7 @@ export class PlanView {
                 const lineChartVisible = isInViewport(lineCharts);
         
                 if (lineChartVisible) {
-                    planView.onLinePlotsVisible(plan, planView);
+                    planView.onLinePlotsVisible?.(plan, planView);
                     // unsubscribe the scroll events
                     document.removeEventListener("scroll", handleScrollEvent)
                 }
@@ -522,11 +532,11 @@ function px(valueInPx: number): string {
     return `${valueInPx}px`;
 }
 
-export function createPlanView(hostElementId: string, onActionSelected: (actionName: string) => void,
-    onHelpfulActionSelected: (actionName: string) => void, 
-    onLinePlotsVisible: (plan: Plan) => void,
-    options: PlanViewOptions): PlanView {
-    return new PlanView(hostElementId, onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible, options);
+export function createPlanView(hostElementId: string,
+    options: PlanViewOptions, onActionSelected?: (actionName: string) => void,
+    onHelpfulActionSelected?: (actionName: string) => void, 
+    onLinePlotsVisible?: (plan: Plan) => void): PlanView {
+    return new PlanView(hostElementId, options,
+        onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
 }
 

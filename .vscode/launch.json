@@ -7,7 +7,7 @@
         {
             "type": "chrome",
             "request": "launch",
-            "name": "Open test.html",
+            "name": "Open sample.html",
             "file": "${workspaceFolder}/sample/sample.html"
         }
     ]

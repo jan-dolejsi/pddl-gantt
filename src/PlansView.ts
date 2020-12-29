@@ -10,11 +10,11 @@ class PlansView {
     private selectedPlan = Number.NaN;
 
     constructor(hostElementId: string,
-        private readonly onPlanSelected: (planIndex: number) => void,
-        private readonly onActionSelected: (actionName: string) => void,
-        private readonly onHelpfulActionSelected: (actionName: string) => void,
-        private readonly onLinePlotsVisible: (plan: Plan) => void,
-        private readonly options: PlanViewOptions) {
+        private readonly options: PlanViewOptions,
+        private readonly onPlanSelected?: (planIndex: number) => void,
+        private readonly onActionSelected?: (actionName: string) => void,
+        private readonly onHelpfulActionSelected?: (actionName: string) => void,
+        private readonly onLinePlotsVisible?: (plan: Plan) => void) {
         
         const host = document.getElementById(hostElementId);
         if (host === null) {
@@ -28,7 +28,7 @@ class PlansView {
         if (this.selectedPlan != newSelectedPlan) {
             // remember the index of the plan that is being shown for later manipulation
             this.selectedPlan = newSelectedPlan;
-            this.onPlanSelected(this.selectedPlan);
+            this.onPlanSelected?.(this.selectedPlan);
         }
     }
 
@@ -74,12 +74,14 @@ class PlansView {
 
 }
 
-export function createPlansView(hostElementId: string, onPlanSelected: (planIndex: number) => void,
-    onActionSelected: (actionName: string) => void,
-    onHelpfulActionSelected: (actionName: string) => void,
-    onLinePlotsVisible: (plan: Plan) => void,
-    options: PlanViewOptions): PlansView {
+export function createPlansView(hostElementId: string,
+    options: PlanViewOptions,
+    onPlanSelected?: (planIndex: number) => void,
+    onActionSelected?: (actionName: string) => void,
+    onHelpfulActionSelected?: (actionName: string) => void,
+    onLinePlotsVisible?: (plan: Plan) => void): PlansView {
 
-    return new PlansView(hostElementId, onPlanSelected, onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible, options);
+    return new PlansView(hostElementId, options,
+        onPlanSelected, onActionSelected, onHelpfulActionSelected,
+        onLinePlotsVisible);
 }
