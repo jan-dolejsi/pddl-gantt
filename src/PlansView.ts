@@ -24,6 +24,10 @@ class PlansView {
         host.innerText = JSON.stringify(this.options);
     }
 
+    setDisplayWidth(displayWidth: number): void {
+        this.options.displayWidth = displayWidth;
+    }
+
     setSelectedPlan(newSelectedPlan: number): void {
         if (this.selectedPlan != newSelectedPlan) {
             // remember the index of the plan that is being shown for later manipulation
@@ -76,12 +80,7 @@ class PlansView {
 
 export function createPlansView(hostElementId: string,
     options: PlanViewOptions,
-    onPlanSelected?: (planIndex: number) => void,
-    onActionSelected?: (actionName: string) => void,
-    onHelpfulActionSelected?: (actionName: string) => void,
-    onLinePlotsVisible?: (plan: Plan) => void): PlansView {
+    onPlanSelected?: (planIndex: number) => void): PlansView {
 
-    return new PlansView(hostElementId, options,
-        onPlanSelected, onActionSelected, onHelpfulActionSelected,
-        onLinePlotsVisible);
+    return new PlansView(hostElementId, options, onPlanSelected);
 }

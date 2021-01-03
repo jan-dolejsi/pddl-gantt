@@ -17,6 +17,9 @@ export interface PlanViewOptions {
     disableSwimlanes?: boolean;
     disableLinePlots?: boolean;
     selfContained?: boolean;
+    onActionSelected?: (actionName: string) => void;
+    onHelpfulActionSelected?: (actionName: string) => void;
+    onLinePlotsVisible?: (planView: PlanView) => void;
 }
 
 const DIGITS = 4;
@@ -26,12 +29,10 @@ export class PlanView {
     private host: HTMLElement;
     private planStepHeight = 20;
     private lineCharts: HTMLDivElement | undefined;
+    private _planId = -1;
 
     constructor(hostElementId: string,
-        private readonly options: PlanViewOptions,
-        private readonly onActionSelected?: (actionName: string) => void,
-        private readonly onHelpfulActionSelected?: (actionName: string) => void, 
-        private readonly onLinePlotsVisible?: (plan: Plan, planView: PlanView) => void) {
+        private readonly options: PlanViewOptions) {
         const host = document.getElementById(hostElementId);
         if (host === null) {
             throw new Error(`Element with id#${hostElementId} not found in the document.`);
@@ -39,9 +40,24 @@ export class PlanView {
         this.host = host;
     }
 
+    get planId(): number {
+        return this._planId;
+    }
+    
+    clear(): void {
+        this.getOrCreateBlankChildElement('gantt');
+        this.getOrCreateBlankChildElement('resourceUtilization');
+        this.getOrCreateBlankChildElement('lineCharts');
+    }
+
+    setDisplayWidth(displayWidth: number): void {
+        this.options.displayWidth = displayWidth;
+    }
+
     showPlan(plan: Plan, planIndex: number, settings?: PlanVizSettings): void {
         // todo: add custom plan visualization here
 
+        this._planId = planIndex;
         plan = capitalize(plan);
 
         const stepsToDisplay = plan.steps
@@ -169,7 +185,7 @@ export class PlanView {
 
         const a = document.createElement("a");
         a.href = "#";
-        a.onclick = (): void => this.onHelpfulActionSelected?.(helpfulAction.actionName);
+        a.onclick = (): void => this.options.onHelpfulActionSelected?.(helpfulAction.actionName);
         a.innerHTML = beautifiedName;
         
         helpfulActions.appendChild(a);
@@ -201,7 +217,7 @@ export class PlanView {
         else {
             const a = document.createElement("a");
             a.href = '#';
-            a.onclick = (): void => this.onActionSelected?.(actionName);
+            a.onclick = (): void => this.options.onActionSelected?.(actionName);
             a.title = `Reveal '${actionName}' action in the domain file`;
             a.innerText = actionName;
             return a;
@@ -482,7 +498,7 @@ export class PlanView {
         }
 
         if (isInViewport(lineCharts)) {
-            this.onLinePlotsVisible?.(plan, this);
+            this.options.onLinePlotsVisible?.(this);
         }
         else {
             this.addLoader(lineCharts);
@@ -492,7 +508,7 @@ export class PlanView {
                 const lineChartVisible = isInViewport(lineCharts);
         
                 if (lineChartVisible) {
-                    planView.onLinePlotsVisible?.(plan, planView);
+                    planView.options.onLinePlotsVisible?.(planView);
                     // unsubscribe the scroll events
                     document.removeEventListener("scroll", handleScrollEvent)
                 }
@@ -532,11 +548,7 @@ function px(valueInPx: number): string {
     return `${valueInPx}px`;
 }
 
-export function createPlanView(hostElementId: string,
-    options: PlanViewOptions, onActionSelected?: (actionName: string) => void,
-    onHelpfulActionSelected?: (actionName: string) => void, 
-    onLinePlotsVisible?: (plan: Plan) => void): PlanView {
-    return new PlanView(hostElementId, options,
-        onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
+export function createPlanView(hostElementId: string, options: PlanViewOptions): PlanView {
+    return new PlanView(hostElementId, options);
 }
 

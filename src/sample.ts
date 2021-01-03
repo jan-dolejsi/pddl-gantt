@@ -34,11 +34,19 @@ const EPSILON = 1e-3;
 
 function initialize() {
     const width = parseInt(document.getElementById("planViewWidth")?.getAttribute("value") ?? "400");
-    planView = createPlanView("plan", { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON },
-        onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
+    planView = createPlanView("plan", {
+        disableSwimlanes: false, displayWidth: width, epsilon: EPSILON,
+        onActionSelected: onActionSelected,
+        onHelpfulActionSelected: onHelpfulActionSelected,
+        onLinePlotsVisible: onLinePlotsVisible
+    });
 
-    plansView = createPlansView("plans", { disableSwimlanes: false, displayWidth: width, epsilon: EPSILON },
-        onPlanSelected, onActionSelected, onHelpfulActionSelected, onLinePlotsVisible);
+    plansView = createPlansView("plans", {
+        disableSwimlanes: false, displayWidth: width, epsilon: EPSILON,
+        onActionSelected: onActionSelected,
+        onHelpfulActionSelected: onHelpfulActionSelected,
+        onLinePlotsVisible: onLinePlotsVisible
+    }, onPlanSelected);
 }
 
 async function addPlan() {
