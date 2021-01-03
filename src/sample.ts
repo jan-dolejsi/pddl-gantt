@@ -66,5 +66,11 @@ async function addPlan() {
     plansView?.showPlan(reHydratedPlan, 0, settings);
 }
 
-document.getElementById("addPlan").onclick = addPlan
+function clear(): void {
+    planView?.clear();
+    plansView?.clear();
+}
+
+document.getElementById("addPlan").onclick = addPlan;
+document.getElementById("clear").onclick = clear;
 document.body.onload = () => initialize();
