@@ -184,7 +184,7 @@ export class PlanView {
         helpfulActions.appendChild(document.createTextNode(`${index + 1}. `));
 
         const a = document.createElement("a");
-        a.href = "#";
+        a.className = "action";
         a.onclick = (): void => this.options.onHelpfulActionSelected?.(helpfulAction.actionName);
         a.innerHTML = beautifiedName;
         
@@ -216,7 +216,7 @@ export class PlanView {
         }
         else {
             const a = document.createElement("a");
-            a.href = '#';
+            a.className = "action"
             a.onclick = (): void => this.options.onActionSelected?.(actionName);
             a.title = `Reveal '${actionName}' action in the domain file`;
             a.innerText = actionName;

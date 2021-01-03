@@ -76,16 +76,16 @@ th, td {
     text-align: left;
 }
 
+a.action {
+    cursor: pointer;
+}
+
 td.objectName {
     vertical-align: baseline;
 }
 
 th.actionToolTip, td.actionToolTip {
     border-bottom-style: none;
-}
-
-div.hint {
-    opacity: 60%;
 }
 
 /* https://iros.github.io/patternfills/sample_css.html */
