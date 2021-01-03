@@ -5,4 +5,8 @@ src/
 test/
 out/
 sample/
+out-sample/
 *-*.tgz
+dist/sample.*
+debug.log
+switch-to*.*
