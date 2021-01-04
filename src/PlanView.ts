@@ -135,7 +135,7 @@ export class PlanView extends View {
         this.activateLinePlotPlaceholder(this.lineCharts, plan);
     }
 
-    showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
+    showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: (number | null)[][]): void {
         if (this.lineCharts) {
             this.lineCharts.querySelector(".loader")?.remove();
             this.addLinePlot(title, yAxisUnit, objects, data);
