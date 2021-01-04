@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 
 import { Plan } from "pddl-workspace";
-import { appendPlanView, ATTR_PLAN, DIGITS, getHostElement, PlanView, PlanViewOptions, PLAN_VIEW_CLASS, px, View } from "./PlanView";
+import { appendPlanView, ATTR_PLAN, DIGITS, getHostElement, PlanView, PlanViewOptions, px, View } from "./PlanView";
 import { PlanVizSettings } from "./PlanVizSettings";
 
 const PLAN_SELECTORS = "planSelectors";
