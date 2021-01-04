@@ -8,7 +8,11 @@
             "type": "chrome",
             "request": "launch",
             "name": "Open sample.html",
-            "file": "${workspaceFolder}/sample/sample.html"
+            "file": "${workspaceFolder}/sample/sample.html",
+            "preLaunchTask": "npm: compileSample",
+			"outFiles": [
+				"${workspaceFolder}/out-sample/**/*.js"
+			]
         }
     ]
 }

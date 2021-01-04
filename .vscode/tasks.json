@@ -35,6 +35,16 @@
             "label": "npm: watchSample",
             "detail": "watchify src/PlanView.ts src/sample.ts -p tsify -o out-sample/sample.js --verbose",
             "isBackground": true
+        },
+        {
+            "type": "npm",
+            "script": "compileSample",
+            "problemMatcher": [
+                "$tsc"
+            ],
+            "group": "build",
+            "label": "npm: compileSample",
+            "detail": "browserify src/PlanView.ts src/sample.ts -p tsify > out-sample/sample.js"
         }
     ]
 }
