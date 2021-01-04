@@ -27,8 +27,8 @@ export function capitalize(plan: Plan): Plan {
         .map(step => capitalizeStep(step, actionNames, plan.problem!));
 
     const capitalizedPlan = new Plan(capitalizedSteps, plan.domain, plan.problem, plan.now, plan.helpfulActions);
-    if (plan.isCostDefined()) {
-        capitalizedPlan.cost = plan.cost;
+    if (plan.isMetricDefined()) {
+        capitalizedPlan.metric = plan.metric;
     }
     return capitalizedPlan;
 }

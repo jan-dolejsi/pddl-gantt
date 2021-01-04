@@ -74,7 +74,7 @@ catch (err) {
 }
 
 
-export function drawChart(chartDiv: HTMLDivElement, functionName: string, unit: string, objects: string[], columnData: number[][]): void {
+export function drawChart(chartDiv: HTMLDivElement, functionName: string, unit: string, objects: string[], columnData: (number | null)[][]): void {
 
     if (!chartDefined) { return;}
 
@@ -95,7 +95,7 @@ export function drawChart(chartDiv: HTMLDivElement, functionName: string, unit: 
             title: unit,
             scaleType: 'linear' //vAxisScaleType = 'log'
         },
-        interpolateNulls: true,
+        interpolateNulls: false,
         title: functionName
     };
 

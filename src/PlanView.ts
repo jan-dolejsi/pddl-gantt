@@ -22,65 +22,34 @@ export interface PlanViewOptions {
     onLinePlotsVisible?: (planView: PlanView) => void;
 }
 
-const DIGITS = 4;
+export const DIGITS = 4;
 
-export class PlanView {
+export function getHostElement(hostElementId: string): HTMLElement {
+    const host = document.getElementById(hostElementId);
+    if (host === null) {
+        throw new Error(`Element with id#${hostElementId} not found in the document.`);
+    }
+    return host;
+}
 
-    private host: HTMLElement;
-    private planStepHeight = 20;
-    private lineCharts: HTMLDivElement | undefined;
-    private _planId = -1;
+export class View {
 
-    constructor(hostElementId: string,
-        private readonly options: PlanViewOptions) {
-        const host = document.getElementById(hostElementId);
-        if (host === null) {
-            throw new Error(`Element with id#${hostElementId} not found in the document.`);
-        }
-        this.host = host;
+    protected readonly host: HTMLElement;
+
+    constructor(hostElement: HTMLDivElement,
+        protected readonly options: PlanViewOptions) {
+        this.host = hostElement;
     }
 
-    get planId(): number {
-        return this._planId;
-    }
-    
-    clear(): void {
-        this.getOrCreateBlankChildElement('gantt');
-        this.getOrCreateBlankChildElement('resourceUtilization');
-        this.getOrCreateBlankChildElement('lineCharts');
-    }
-
-    setDisplayWidth(displayWidth: number): void {
+    /**
+     * Sets new display width. Does not trigger (re-)drawing.
+     * @param displayWidth new width in pixels
+     */
+    public setDisplayWidth(displayWidth: number): void {
         this.options.displayWidth = displayWidth;
     }
 
-    showPlan(plan: Plan, planIndex: number, settings?: PlanVizSettings): void {
-        // todo: add custom plan visualization here
-
-        this._planId = planIndex;
-        plan = capitalize(plan);
-
-        const stepsToDisplay = plan.steps
-            .filter(step => PlanView.shouldDisplay(step, settings));
-        
-        const ganttDiv = this.getOrCreateBlankChildElement('gantt');
-        this.showGantt(ganttDiv, plan, stepsToDisplay, planIndex)
-
-        const swimLanes = this.getOrCreateBlankChildElement('resourceUtilization');
-        this.showSwimLanes(swimLanes, plan, settings);
-
-        this.lineCharts = this.getOrCreateBlankChildElement('lineCharts');
-        this.activateLineChartPlaceholder(this.lineCharts, plan);
-    }
-
-    showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
-        if (this.lineCharts) {
-            this.lineCharts.querySelector(".loader")?.remove();
-            this.addLinePlot(title, yAxisUnit, objects, data);
-        }
-    }
-
-    private getOrCreateBlankChildElement(className: string): HTMLDivElement {
+    protected getOrCreateBlankChildElement(className: string): HTMLDivElement {
         const el = this.host.querySelector<HTMLDivElement>('.' + className);
         if (el) {
             el.innerHTML = '';
@@ -94,8 +63,86 @@ export class PlanView {
         child.className = className;
         return this.host.appendChild(child);
     }
+}
+
+const GANTT = 'gantt';
+const RESOURCE_UTILIZATION = 'resourceUtilization';
+const LINE_CHARTS = 'lineCharts';
+export const ATTR_PLAN = "plan";
+export const PLAN_VIEW_CLASS = "planView";
+
+/** Single-plan view. */
+export class PlanView extends View {
+
+    private planStepHeight = 20;
+    private lineCharts: HTMLDivElement | undefined;
     
-    private showGantt(ganttDiv: HTMLDivElement, plan: Plan, stepsToDisplay: PlanStep[], planIndex: number): void {
+    private handleScrollEvent: (() => void) | undefined;
+    private linePlotsGenerated = false;
+    private plan: Plan | undefined;
+    private visible = true;
+
+    constructor(hostElement: HTMLDivElement, public readonly planIndex: number, options: PlanViewOptions) {
+        super(hostElement, options);
+
+        if (this.host.style.width.length == 0) {
+            this.host.style.width = px(options.displayWidth);
+        }
+    }
+    
+    clear(): void {
+        this.getOrCreateBlankChildElement(GANTT);
+        this.getOrCreateBlankChildElement(RESOURCE_UTILIZATION);
+        this.getOrCreateBlankChildElement(LINE_CHARTS);
+
+        this.plan = undefined;
+        this.deactivateLinePlotPlaceholder();
+    }
+
+    setVisible(visible: boolean): void {
+        if (this.visible !== visible) {
+            this.visible = visible;
+            const newDisplayStyle = visible ? "block" : "none";
+            this.host.style.display = newDisplayStyle;
+
+            if (!this.linePlotsGenerated && this.plan) { 
+                // line plots were not generated yet
+                if (!visible) {
+                    // unsubscribe scroll event
+                    this.deactivateLinePlotPlaceholder();
+                } else {
+                    this.lineCharts && this.activateLinePlotPlaceholder(this.lineCharts, this.plan);
+                }
+            }
+        }
+    }
+
+    showPlan(plan: Plan, settings?: PlanVizSettings): void {
+        // todo: add custom plan visualization here
+
+        this.plan = capitalize(plan);
+
+        const stepsToDisplay = plan.steps
+            .filter(step => PlanView.shouldDisplay(step, settings));
+        
+        const ganttDiv = this.getOrCreateBlankChildElement(GANTT);
+        this.showGantt(ganttDiv, plan, stepsToDisplay)
+
+        const swimLanes = this.getOrCreateBlankChildElement(RESOURCE_UTILIZATION);
+        this.showSwimLanes(swimLanes, plan, settings);
+
+        this.lineCharts = this.getOrCreateBlankChildElement(LINE_CHARTS);
+        this.activateLinePlotPlaceholder(this.lineCharts, plan);
+    }
+
+    showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
+        if (this.lineCharts) {
+            this.lineCharts.querySelector(".loader")?.remove();
+            this.addLinePlot(title, yAxisUnit, objects, data);
+        }
+    }
+    
+    private showGantt(ganttDiv: HTMLDivElement, plan: Plan, stepsToDisplay: PlanStep[]): void {
         // split this to two batches and insert helpful actions in between
         const planHeadSteps = stepsToDisplay
             .filter(step => this.isPlanHeadStep(step, plan.now));
@@ -107,7 +154,6 @@ export class PlanView {
 
         const ganttChartHeight = (stepsToDisplay.length + oneIfHelpfulActionsPresent) * this.planStepHeight;
 
-        ganttDiv.setAttribute("plan", planIndex.toString());
         ganttDiv.style.height = px(ganttChartHeight);
 
         planHeadSteps
@@ -492,19 +538,26 @@ export class PlanView {
      * @param lineCharts line chart element
      * @param plan plan being displayed
      */
-    private activateLineChartPlaceholder(lineCharts: HTMLDivElement, plan: Plan): void {
+    private activateLinePlotPlaceholder(lineCharts: HTMLDivElement, plan: Plan): void {
         if (this.options.disableLinePlots || !plan.domain || !plan.problem) {
             return;
         }
+        
+        this.deactivateLinePlotPlaceholder();
 
         if (isInViewport(lineCharts)) {
+            // load charts immediately
             this.options.onLinePlotsVisible?.(this);
         }
         else {
+            // defer cart loading
+
+            // show loader
             this.addLoader(lineCharts);
+
             // eslint-disable-next-line @typescript-eslint/no-this-alias
             const planView = this;
-            document.addEventListener('scroll', function handleScrollEvent() {
+            const scrollHandler = function handleScrollEvent(): void {
                 const lineChartVisible = isInViewport(lineCharts);
         
                 if (lineChartVisible) {
@@ -512,20 +565,37 @@ export class PlanView {
                     // unsubscribe the scroll events
                     document.removeEventListener("scroll", handleScrollEvent)
                 }
-            }, {
+            };
+
+            document.addEventListener('scroll', scrollHandler, {
                 passive: true
             });
+
+            // retain the handler, so it may be cleared along with the plan
+            this.handleScrollEvent = scrollHandler;
+        }
+    }
+    
+    /** Removes the scroll events to avoid generating charts for plans that have been cleared from the view */
+    private deactivateLinePlotPlaceholder(): void {
+        if (this.handleScrollEvent !== undefined) {
+            document.removeEventListener("scroll", this.handleScrollEvent);
+            this.handleScrollEvent = undefined;
+        }
+    }
+    
+    private addLoader(lineCharts: HTMLDivElement): void {
+        // <div class="loader"></div>
+        if (!lineCharts.querySelector("div.loader")) {
+            // only ever add one loader, even if the scroll handler is activated/deactivated many times
+            const loader = document.createElement("div");
+            loader.className = "loader";
+            lineCharts.appendChild(loader);
         }
     }
 
-    private addLoader(lineCharts: HTMLDivElement): void {
-        // <div class="loader"></div>
-        const loader = document.createElement("div");
-        loader.className = "loader";
-        lineCharts.appendChild(loader);
-    }
-
-    private addLinePlot(title: string, yAxisUnit: string, objects: string[], data: number[][]): void {
+    private addLinePlot(title: string, yAxisUnit: string, objects: string[], data: (number | null)[][]): void {
+        this.linePlotsGenerated = true;
         const linePlot = document.createElement("div");
         linePlot.className = "lineChart";
 
@@ -544,11 +614,20 @@ export class PlanView {
 
 }
 
-function px(valueInPx: number): string {
+export function px(valueInPx: number): string {
     return `${valueInPx}px`;
 }
 
 export function createPlanView(hostElementId: string, options: PlanViewOptions): PlanView {
-    return new PlanView(hostElementId, options);
+    const hostElement = getHostElement(hostElementId) as HTMLDivElement;
+    return new PlanView(hostElement, 0, options);
 }
 
+export function appendPlanView(parent: HTMLDivElement, planIndex: number, options: PlanViewOptions): PlanView {
+    const hostElement = document.createElement('div');
+    hostElement.setAttribute(ATTR_PLAN, planIndex.toString());
+    hostElement.className = PLAN_VIEW_CLASS;
+    const planView = new PlanView(hostElement, planIndex, options);
+    parent.appendChild(hostElement);
+    return planView;
+}

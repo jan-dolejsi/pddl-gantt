@@ -21,10 +21,10 @@ function onHelpfulActionSelected(actionName: string): void {
     console.log(`Helpful action selected: ${actionName}`);
 }
 
-function onLinePlotsVisible(plan: Plan, planView: PlanView): void {
-    console.log(`Render charts using mock data ${plan}`);
+function onLinePlotsVisible(planView: PlanView): void {
+    console.log(`Rendering charts using mock data ${planView.planIndex}`);
     setTimeout(() => planView.showPlanLinePlots("distance", "km", ["driver1", "driver2"], [[1, 10, 13], [2, 20, 7], [5, 15, 10]]), 1000);
-    setTimeout(() => planView.showPlanLinePlots("fuel", "l", ["truck1", "truck2", "truck3"], [[1, 4, 6, 4], [4, 3, 5, 3], [6, 7, 8, 2]]), 2000);
+    setTimeout(() => planView.showPlanLinePlots("fuel", "l", ["truck1", "truck2", "truck3"], [[1, 4, 6, 4], [4, 3, 5, 3], [5, 7, null, 2], [6, 7, 8, 2]]), 2000);
 }
 
 let planView: PlanView | undefined;
@@ -59,19 +59,20 @@ async function addPlan() {
     const domain = parser.PddlDomainParser.parseText(domainText);
     const problem = await parser.PddlProblemParser.parseText(problemText);
     
-    const planInfo = parser.PddlPlanParser.parseText(planText, EPSILON);
+    const planInfo = new parser.PddlPlanParser().parseText(planText, EPSILON);
 
     const settings = new JsonPlanVizSettings(JSON.parse(settingsText));
 
     const now = parseFloat(document.getElementById("now")?.value ?? "");
     
     const plan = new Plan(planInfo.getSteps(), domain, problem, now, [{ actionName: 'helpful1', kind: HappeningType.INSTANTANEOUS }]);
+    plan.metric = planInfo.metric;
     
     // simulate the plan sent over JSON message
     const reHydratedPlan = Plan.clone(JSON.parse(JSON.stringify(utils.serializationUtils.makeSerializable(plan))));
 
-    planView?.showPlan(reHydratedPlan, 0, settings);
-    plansView?.showPlan(reHydratedPlan, 0, settings);
+    planView?.showPlan(reHydratedPlan, settings);
+    plansView?.addPlan(reHydratedPlan, settings);
 }
 
 function clear(): void {
