@@ -32,6 +32,15 @@ export class PlansView extends View {
         this.showPlans([], -1);
     }
 
+    /**
+     * Get `PlanView` for the plan at given `planIndex`
+     * @param planIndex plan index
+     * @throws when planIndex is out of range
+     */
+    getView(planIndex: number): PlanView {
+        return this.planViews[planIndex];
+    }
+
     showPlans(plans: Plan[], planId = -1, settings?: PlanVizSettings): void {
         this.selectedPlan = planId < 0 ? plans.length - 1 : planId;
         this.plans = plans;
