@@ -41,6 +41,6 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "pddl-workspace": "file:../pddl-workspace"
+    "pddl-workspace": "^6.0.0"
   }
 }
