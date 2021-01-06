@@ -43,7 +43,7 @@ export class View {
 
     /**
      * Sets new display width. Does not trigger (re-)drawing.
-     * @param displayWidth new width in pixels
+     * @param displayWidth new width in pixels, the width is used to fit all gantt chart bars (not necessarily the labels next to them)
      */
     public setDisplayWidth(displayWidth: number): void {
         this.options.displayWidth = displayWidth;
@@ -86,7 +86,7 @@ export class PlanView extends View {
         super(hostElement, options);
 
         if (this.host.style.width.length == 0) {
-            this.host.style.width = px(options.displayWidth);
+            this.host.style.width = px(options.displayWidth + 100);
         }
     }
     
@@ -137,7 +137,7 @@ export class PlanView extends View {
 
     showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: (number | null)[][]): void {
         if (this.lineCharts) {
-            this.lineCharts.querySelector(".loader")?.remove();
+            this.hideLinePlotLoadingProgress();
             this.addLinePlot(title, yAxisUnit, objects, data);
         }
     }
@@ -563,13 +563,14 @@ export class PlanView extends View {
                 if (lineChartVisible) {
                     planView.options.onLinePlotsVisible?.(planView);
                     // unsubscribe the scroll events
-                    document.removeEventListener("scroll", handleScrollEvent)
+                    // todo: can we call the planView.deactivateLinePlotPlaceholder(handleScrollEvent);
+                    document.removeEventListener("scroll", handleScrollEvent);
+                    document.removeEventListener("resize", handleScrollEvent);
                 }
             };
 
-            document.addEventListener('scroll', scrollHandler, {
-                passive: true
-            });
+            document.addEventListener('scroll', scrollHandler, { passive: true });
+            document.addEventListener("resize", scrollHandler, { passive: true });
 
             // retain the handler, so it may be cleared along with the plan
             this.handleScrollEvent = scrollHandler;
@@ -580,6 +581,7 @@ export class PlanView extends View {
     private deactivateLinePlotPlaceholder(): void {
         if (this.handleScrollEvent !== undefined) {
             document.removeEventListener("scroll", this.handleScrollEvent);
+            document.removeEventListener("resize", this.handleScrollEvent);
             this.handleScrollEvent = undefined;
         }
     }
@@ -592,6 +594,10 @@ export class PlanView extends View {
             loader.className = "loader";
             lineCharts.appendChild(loader);
         }
+    }
+
+    hideLinePlotLoadingProgress(): void {
+        this.lineCharts?.querySelector(".loader")?.remove();
     }
 
     private addLinePlot(title: string, yAxisUnit: string, objects: string[], data: (number | null)[][]): void {
