@@ -3,4 +3,5 @@ export * from './PlansView';
 
 export * from './JsonPlanVizSettings';
 export * from './PlanVizSettings';
+export * from './PlanVisualization';
 export * from './planCapitalization';

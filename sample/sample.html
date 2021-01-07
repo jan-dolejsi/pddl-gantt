@@ -12,7 +12,6 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <script defer src="../out-sample/sample.js"></script>
-    <!-- <script defer src="sample.js"></script> -->
 </head>
 
 <body>
@@ -237,7 +236,7 @@ Metric: 126.010
         </tr>
         <tr>
             <th>Relaxed plan</th>
-            <th>&nbsp;</th>
+            <th>Plan visualization</th>
         </tr>
         <tr>
             <td>
@@ -245,6 +244,23 @@ Metric: 126.010
                 <input type="number" id="now" min="0.001" value="106.01">
                 <br>
                 <textarea id="relaxedPlanText" width="100%">
+                </textarea>
+            </td>
+            <td>
+                <textarea id="planVisualizationScript">
+function visualizeHtml(plan, width) {
+    const height = 100;
+    return `<svg height="${height}" width="${width}">
+        <rect width="${width}" height="${height}" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" />
+        <circle cx="${height/2}" cy="${height/2}" r="${plan.metric}" stroke="black" stroke-width="3" fill="red" />
+      </svg> `;
+}
+module.exports = {
+    // define one of the following functions:
+    visualizeHtml: visualizeHtml, 
+    visualizeInDiv: undefined, // function (hostDiv, plan, width)
+    visualizeSvg: undefined // function (plan, width)
+};
                 </textarea>
             </td>
         </tr>

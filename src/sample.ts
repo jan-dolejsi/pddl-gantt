@@ -55,13 +55,14 @@ async function addPlan() {
     const problemText = document.getElementById("problemText")?.value ?? "";
     const planText = document.getElementById("planText")?.value ?? "";
     const settingsText = document.getElementById("settings")?.value ?? "{}";
+    const planVisualizationText = document.getElementById("planVisualizationScript")?.value;
 
     const domain = parser.PddlDomainParser.parseText(domainText);
     const problem = await parser.PddlProblemParser.parseText(problemText);
     
     const planInfo = new parser.PddlPlanParser().parseText(planText, EPSILON);
 
-    const settings = new JsonPlanVizSettings(JSON.parse(settingsText));
+    const settings = new JsonPlanVizSettings(JSON.parse(settingsText), planVisualizationText);
 
     const now = parseFloat(document.getElementById("now")?.value ?? "");
     

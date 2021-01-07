@@ -8,6 +8,7 @@
 import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction } from "pddl-workspace";
 import { drawChart, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
+import { PlanVisualization } from "./PlanVisualization";
 import { PlanVizSettings } from "./PlanVizSettings";
 import { SwimLane } from "./SwimLane";
 
@@ -65,6 +66,7 @@ export class View {
     }
 }
 
+const PLAN_VIZ = 'planViz';
 const GANTT = 'gantt';
 const RESOURCE_UTILIZATION = 'resourceUtilization';
 const LINE_CHARTS = 'lineCharts';
@@ -118,9 +120,10 @@ export class PlanView extends View {
     }
 
     showPlan(plan: Plan, settings?: PlanVizSettings): void {
-        // todo: add custom plan visualization here
-
         this.plan = capitalize(plan);
+
+        const planVizDiv = this.getOrCreateBlankChildElement(PLAN_VIZ);
+        this.visualizePlan(planVizDiv, plan, settings);
 
         const stepsToDisplay = plan.steps
             .filter(step => PlanView.shouldDisplay(step, settings));
@@ -133,6 +136,22 @@ export class PlanView extends View {
 
         this.lineCharts = this.getOrCreateBlankChildElement(LINE_CHARTS);
         this.activateLinePlotPlaceholder(this.lineCharts, plan);
+    }
+
+    private visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
+        const planVisualizationScript = settings?.getPlanVisualizationScript();
+        if (planVisualizationScript) {
+            const viz = eval(planVisualizationScript) as PlanVisualization;
+            if (viz.visualizeHtml) {
+                const vizHtml = viz.visualizeHtml(plan, this.options.displayWidth);
+                planVizDiv.innerHTML = vizHtml;
+            } else if (viz.visualizeInDiv) {
+                viz.visualizeInDiv(planVizDiv, plan, this.options.displayWidth);
+            } else if (viz.visualizeSvg) {
+                const vizSvg = viz.visualizeSvg(plan, this.options.displayWidth);
+                planVizDiv.appendChild(vizSvg);
+            }
+        }
     }
 
     showPlanLinePlots(title: string, yAxisUnit: string, objects: string[], data: (number | null)[][]): void {
@@ -489,7 +508,7 @@ export class PlanView extends View {
 
         const tdName = document.createElement("td");
         tdName.className = "objectName";
-        tdName.innerText = obj; // todo: this text was wrapped in a <div> for some reason - style?
+        tdName.innerText = obj;
 
         const tdLane = document.createElement("td");
         tdLane.style.position = "relative";

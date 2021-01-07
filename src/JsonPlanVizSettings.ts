@@ -12,7 +12,7 @@ export class JsonPlanVizSettings implements PlanVizSettings {
     ignoreActionParameters: ActionParameterPattern[] | undefined;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    constructor(private readonly settings: any) {
+    constructor(private readonly settings: any, private readonly planVisualizationScript?: string) {
     }
 
     shouldDisplay(planStep: PlanStep): boolean {
@@ -43,8 +43,12 @@ export class JsonPlanVizSettings implements PlanVizSettings {
         return !!actionName.match(new RegExp(pattern, "i"));
     }
 
-    getPlanVisualizerScript(): string {
+    getPlanVisualizationScriptPath(): string {
         return this.settings && this.settings["planVisualizer"];
+    }
+
+    getPlanVisualizationScript(): string | undefined {
+        return this.planVisualizationScript;
     }
 }
 
