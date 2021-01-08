@@ -27,6 +27,11 @@ div.planstep-bar-relaxed {
     margin-left: 0px;
 }
 
+span.error {
+    color: red;
+    text-overflow: ellipsis;
+}
+
 a:link {
     text-decoration: none;
 }

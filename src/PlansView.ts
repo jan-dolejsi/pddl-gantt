@@ -12,19 +12,21 @@ const PLAN_SELECTOR = "planSelector";
 const PLAN_SELECTOR_SELECTED = PLAN_SELECTOR + "-selected";
 const PLAN_VIEWS = "planViews";
 
+export interface PlansViewOptions extends PlanViewOptions {
+    onPlanSelected?: (planIndex: number) => void;
+}
+
 /** Multiple-plan view. */
 export class PlansView extends View {
     private selectedPlan = -1;
     private plans: Plan[] = [];
     private planViewsEl: HTMLDivElement | undefined;
     private planViews: PlanView[] = [];
+    private readonly onPlanSelected?: (planIndex: number) => void;
 
-    constructor(hostElement: HTMLDivElement,
-        options: PlanViewOptions,
-        private readonly onPlanSelected?: (planIndex: number) => void) {
-        
+    constructor(hostElement: HTMLDivElement, options: PlansViewOptions) {
         super(hostElement, options);
-
+        this.onPlanSelected = options.onPlanSelected;
         this.clear();
     }
 
@@ -157,10 +159,9 @@ States evaluated: ${plan.statesEvaluated}`;
 }
 
 export function createPlansView(hostElementId: string,
-    options: PlanViewOptions,
-    onPlanSelected?: (planIndex: number) => void): PlansView {
+    options: PlansViewOptions): PlansView {
 
     const hostElement = getHostElement(hostElementId) as HTMLDivElement;
 
-    return new PlansView(hostElement, options, onPlanSelected);
+    return new PlansView(hostElement, options);
 }

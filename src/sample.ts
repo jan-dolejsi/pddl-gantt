@@ -45,8 +45,9 @@ function initialize() {
         disableSwimlanes: false, displayWidth: width, epsilon: EPSILON,
         onActionSelected: onActionSelected,
         onHelpfulActionSelected: onHelpfulActionSelected,
-        onLinePlotsVisible: onLinePlotsVisible
-    }, onPlanSelected);
+        onLinePlotsVisible: onLinePlotsVisible,
+        onPlanSelected: onPlanSelected
+    });
 }
 
 async function addPlan() {

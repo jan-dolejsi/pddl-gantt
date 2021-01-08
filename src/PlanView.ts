@@ -123,7 +123,7 @@ export class PlanView extends View {
         this.plan = capitalize(plan);
 
         const planVizDiv = this.getOrCreateBlankChildElement(PLAN_VIZ);
-        this.visualizePlan(planVizDiv, plan, settings);
+        this.tryVisualizePlan(planVizDiv, plan, settings);
 
         const stepsToDisplay = plan.steps
             .filter(step => PlanView.shouldDisplay(step, settings));
@@ -136,6 +136,23 @@ export class PlanView extends View {
 
         this.lineCharts = this.getOrCreateBlankChildElement(LINE_CHARTS);
         this.activateLinePlotPlaceholder(this.lineCharts, plan);
+    }
+
+    private tryVisualizePlan(planVizDiv: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
+        try {
+            this.visualizePlan(planVizDiv, plan, settings);
+        }
+        catch (ex) {
+            planVizDiv.style.width = px(this.options.displayWidth);
+            this.addError(planVizDiv, ex.message ?? '' + ex);
+        }
+    }
+
+    addError(planVizDiv: HTMLDivElement, ex: string): void {
+        const errorSpan = document.createElement('span');
+        errorSpan.className = 'error';
+        errorSpan.innerText = `Error: ` + ex;
+        planVizDiv.appendChild(errorSpan);
     }
 
     private visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
