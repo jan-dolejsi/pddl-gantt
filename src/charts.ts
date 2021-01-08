@@ -70,7 +70,7 @@ try {
     chartDefined = true;
 }
 catch (err) {
-    console.log(err);
+    console.warn(err);
 }
 
 
