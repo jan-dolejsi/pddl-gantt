@@ -106,6 +106,7 @@ div.lineCharts {
     /* ensure it is visible, when scrolling to it */
     min-height: 100px;
     margin-top: 20px;
+    display: inline-block; /* to ensure the loader is considered in viewport even if the plan is wider than the viewport */
 }
 
 /* SPINNING LOADER */
@@ -119,6 +120,7 @@ div.lineCharts {
     border-bottom: 5px solid red;
     width: 30px;
     height: 30px;
+    display: inline-block; /* to ensure the loader is considered in viewport even if the plan is wider than the viewport */
     -webkit-animation: spin 2s linear infinite;
     animation: spin 2s linear infinite;
 }

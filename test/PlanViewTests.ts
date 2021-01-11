@@ -3,7 +3,7 @@ import { before } from 'mocha';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PlanView } from '../src/PlanView';
-import { JsonPlanVizSettings } from '../src/JsonPlanVizSettings';
+import { JsonDomainVizConfiguration } from '../src/JsonDomainVizConfiguration';
 import { DomainInfo, parser, PlanStep } from "pddl-workspace";
 
 describe("PlanView", () => {
@@ -56,7 +56,7 @@ describe("PlanView", () => {
                     "parameterPattern": "loc-to"
                 }]
             }`);
-            const actual = PlanView.shouldDisplayObject(planStep, "s2", domain, new JsonPlanVizSettings(settings));
+            const actual = PlanView.shouldDisplayObject(planStep, "s2", domain, new JsonDomainVizConfiguration(settings));
             expect(actual).to.equal(false);
         });
 

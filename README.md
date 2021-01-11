@@ -31,7 +31,35 @@ const planInfo = new parser.PddlPlanParser().parseText(planText, 1e-3);
 planView.showPlan(planInfo.getPlan());
 ```
 
-### Custom plan visualization (subject to change)
+### Customizing plan visualization
+
+Some PDDL domain models include actions that have no meaning in the
+real world (e.g. temporal clips) and are undesirable in the visual
+plan representation. They may be removed by specifying their names or regex pattern(s) in the `excludeActions` and passing it via the optional visualization configuration:
+
+```javascript
+const configuration = new JsonDomainVizConfiguration({
+    "excludeActions": [
+        "action-to-be-hidden",
+        "^prefix_",
+        "suffix$"    
+    ],
+    "ignoreActionParameters": [
+        {
+            "action": "^move",
+            "parameterPattern": "^(to|from)$"
+        }        
+    ],
+});
+
+
+planView.showPlan(plan, configuration);
+```
+
+The example also shows how the `ignoreActionParameters` option may be used to hide actions from the object swim-lane diagrams.
+This is useful, when some actions have parameters for implementation reasons, but should not be visualized.
+
+### Custom domain-specific plan/state visualization (subject to change)
 
 todo: distinguish between state and plan visualization
 
@@ -56,7 +84,38 @@ module.exports = {
 };
 ```
 
-The detailed visualization function signatures may be seen in [PlanVisualization.ts](src\PlanVisualization.ts).
+The detailed visualization function signatures may be seen in [CustomVisualization.ts](src\CustomVisualization.ts).
+
+The custom visualization script is passed to the component via the second optional `showPlan()` argument.
+
+```javascript
+const customVisualizationJavascriptText = `
+function visualizeHtml(plan, width) {
+    ...
+}
+module.exports = {
+    visualizeHtml: visualizeHtml, 
+}
+`;
+
+const configuration = new JsonDomainVizConfiguration({
+    "excludeActions": [
+        "action-to-be-hidden",
+        "^prefix_",
+        "suffix$"    
+    ],
+    "ignoreActionParameters": [
+        {
+            "action": "^move",
+            "parameterPattern": "^(to|from)$"
+        }        
+    ],
+    "customVisualization": "disregarded-path-in-this-usecase"
+}, () => customVisualizationJavascriptText);
+
+
+planView.showPlan(plan, configuration);
+```
 
 ## Compiling and contribution
 

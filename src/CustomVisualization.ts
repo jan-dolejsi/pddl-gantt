@@ -11,7 +11,7 @@ import { Plan } from "pddl-workspace";
  * The implementations should initialize _one_ of the visualizeXyz methods.
  * If more then one visualization method is implemented, the framework will use the first one (in order of appearance in this interface).
  */
-export interface PlanVisualization {
+export interface CustomVisualization {
     
     /**
      * Generates HTML text that will be inserted to the page.

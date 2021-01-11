@@ -1,7 +1,8 @@
 export * from './PlanView';
 export * from './PlansView';
 
-export * from './JsonPlanVizSettings';
-export * from './PlanVizSettings';
-export * from './PlanVisualization';
+export * from './DomainVizConfigurationSchema';
+export * from './JsonDomainVizConfiguration';
+export * from './DomainVizConfiguration';
+export * from './CustomVisualization';
 export * from './planCapitalization';

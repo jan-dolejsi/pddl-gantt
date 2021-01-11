@@ -8,8 +8,7 @@
 import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction } from "pddl-workspace";
 import { drawChart, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
-import { PlanVisualization } from "./PlanVisualization";
-import { PlanVizSettings } from "./PlanVizSettings";
+import { DomainVizConfiguration } from "./DomainVizConfiguration";
 import { SwimLane } from "./SwimLane";
 
 export interface PlanViewOptions {
@@ -54,7 +53,6 @@ export class View {
         const el = this.host.querySelector<HTMLDivElement>('.' + className);
         if (el) {
             el.innerHTML = '';
-            // only removes half the children: el.childNodes.forEach(child => child.remove());
         }
         return el ?? this.createChildElement(className);
     }
@@ -119,28 +117,28 @@ export class PlanView extends View {
         }
     }
 
-    showPlan(plan: Plan, settings?: PlanVizSettings): void {
+    showPlan(plan: Plan, configuration?: DomainVizConfiguration): void {
         this.plan = capitalize(plan);
 
         const planVizDiv = this.getOrCreateBlankChildElement(PLAN_VIZ);
-        this.tryVisualizePlan(planVizDiv, plan, settings);
+        this.tryVisualizePlan(planVizDiv, plan, configuration);
 
         const stepsToDisplay = plan.steps
-            .filter(step => PlanView.shouldDisplay(step, settings));
+            .filter(step => PlanView.shouldDisplay(step, configuration));
         
         const ganttDiv = this.getOrCreateBlankChildElement(GANTT);
         this.showGantt(ganttDiv, plan, stepsToDisplay)
 
         const swimLanes = this.getOrCreateBlankChildElement(RESOURCE_UTILIZATION);
-        this.showSwimLanes(swimLanes, plan, settings);
+        this.showSwimLanes(swimLanes, plan, configuration);
 
         this.lineCharts = this.getOrCreateBlankChildElement(LINE_CHARTS);
         this.activateLinePlotPlaceholder(this.lineCharts, plan);
     }
 
-    private tryVisualizePlan(planVizDiv: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
+    private tryVisualizePlan(planVizDiv: HTMLDivElement, plan: Plan, configuration?: DomainVizConfiguration): void {
         try {
-            this.visualizePlan(planVizDiv, plan, settings);
+            this.visualizePlan(planVizDiv, plan, configuration);
         }
         catch (ex) {
             planVizDiv.style.width = px(this.options.displayWidth);
@@ -155,10 +153,9 @@ export class PlanView extends View {
         planVizDiv.appendChild(errorSpan);
     }
 
-    private visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
-        const planVisualizationScript = settings?.getPlanVisualizationScript();
-        if (planVisualizationScript) {
-            const viz = eval(planVisualizationScript) as PlanVisualization;
+    private async visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, configuration?: DomainVizConfiguration): Promise<void> {
+        const viz = await configuration?.getCustomVisualization();
+        if (viz) {
             if (viz.visualizeHtml) {
                 const vizHtml = viz.visualizeHtml(plan, this.options.displayWidth);
                 planVizDiv.innerHTML = vizHtml;
@@ -436,12 +433,12 @@ export class PlanView extends View {
             step.commitment === PlanStepCommitment.EndsInRelaxedPlan;
     }
     
-    private static shouldDisplay(planStep: PlanStep, settings?: PlanVizSettings): boolean {
-        return settings?.shouldDisplay(planStep) ?? true;
+    private static shouldDisplay(planStep: PlanStep, configuration?: DomainVizConfiguration): boolean {
+        return configuration?.shouldDisplay(planStep) ?? true;
     }
 
-    static shouldDisplayObject(step: PlanStep, obj: string, domain?: DomainInfo, settings?: PlanVizSettings): boolean {
-        if (!(PlanView.shouldDisplay(step, settings))) {
+    static shouldDisplayObject(step: PlanStep, obj: string, domain?: DomainInfo, configuration?: DomainVizConfiguration): boolean {
+        if (!(PlanView.shouldDisplay(step, configuration))) {
             return false;
         }
         
@@ -459,7 +456,7 @@ export class PlanView extends View {
             fromArgument = indexOfArgument + 1;
             if (indexOfArgument > -1 && indexOfArgument < liftedAction.parameters.length) {
                 const parameter = liftedAction.parameters[indexOfArgument];
-                const shouldIgnoreThisArgument = settings?.shouldIgnoreActionParameter(liftedAction.name ?? 'unnamed', parameter.name);
+                const shouldIgnoreThisArgument = configuration?.shouldIgnoreActionParameter(liftedAction.name ?? 'unnamed', parameter.name);
                 if (!shouldIgnoreThisArgument) {
                     return true;
                 }
@@ -482,7 +479,7 @@ export class PlanView extends View {
 
     private colors = ['#ff0000', '#ff4000', '#ff8000', '#ffbf00', '#ffff00', '#bfff00', '#80ff00', '#40ff00', '#00ff00', '#00ff40', '#00ff80', '#00ffbf', '#00ffff', '#00bfff', '#0080ff', '#0040ff', '#0000ff', '#4000ff', '#8000ff', '#bf00ff', '#ff00ff', '#ff00bf', '#ff0080', '#ff0040'];
 
-    private showSwimLanes(swimLanes: HTMLDivElement, plan: Plan, settings?: PlanVizSettings): void {
+    private showSwimLanes(swimLanes: HTMLDivElement, plan: Plan, configuration?: DomainVizConfiguration): void {
         if (this.options.disableSwimlanes || !plan.domain || !plan.problem) {
             swimLanes.remove();
             return;
@@ -496,13 +493,13 @@ export class PlanView extends View {
             .filter(type => type !== "object")
             .forEach(type => {
                 const typeObjects = allTypeObjects.getTypeCaseInsensitive(type);
-                typeObjects && this.renderTypeSwimLanes(table, type, typeObjects.getObjects(), plan, settings);
+                typeObjects && this.renderTypeSwimLanes(table, type, typeObjects.getObjects(), plan, configuration);
             });
     
         swimLanes.appendChild(table);
     }
 
-    private renderTypeSwimLanes(table: HTMLTableElement, type: string, objects: string[], plan: Plan, settings?: PlanVizSettings): void {
+    private renderTypeSwimLanes(table: HTMLTableElement, type: string, objects: string[], plan: Plan, configuration?: DomainVizConfiguration): void {
         const tr = document.createElement("tr");
 
         const tableHeaderTypeName = document.createElement("th");
@@ -515,10 +512,10 @@ export class PlanView extends View {
         table.appendChild(tr);
         
         objects.forEach(obj =>
-            this.renderObjectSwimLane(table, obj, plan, settings));
+            this.renderObjectSwimLane(table, obj, plan, configuration));
     }
 
-    private renderObjectSwimLane(table: HTMLTableElement, obj: string, plan: Plan, settings?: PlanVizSettings): void {
+    private renderObjectSwimLane(table: HTMLTableElement, obj: string, plan: Plan, configuration?: DomainVizConfiguration): void {
         const subLanes = new SwimLane(1);
 
         const tr = document.createElement("tr");
@@ -531,7 +528,7 @@ export class PlanView extends View {
         tdLane.style.position = "relative";
        
         plan.steps
-            .filter(step => PlanView.shouldDisplayObject(step, obj, plan.domain, settings))
+            .filter(step => PlanView.shouldDisplayObject(step, obj, plan.domain, configuration))
             .forEach(step => this.renderSwimLaneStep(tdLane, step, plan, obj, subLanes));
 
         // now size the row appropriately

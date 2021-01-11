@@ -5,8 +5,10 @@
 'use strict';
 
 import { PlanStep } from "pddl-workspace";
+import { CustomVisualization } from "./CustomVisualization";
 
-export interface PlanVizSettings {
+/** Configures the plan/state visualization for this domain. */
+export interface DomainVizConfiguration {
 
     /**
      * Decides whether given plan step shall be visualized.
@@ -22,8 +24,11 @@ export interface PlanVizSettings {
     shouldIgnoreActionParameter(actionName: string, parameterName: string): boolean;
     
     /** @returns JavaScript source to evaluate */
-    getPlanVisualizationScript(): string | undefined;
+    getCustomVisualizationScript(): string | Promise<string | undefined>;
 
     /** @returns path to JavaScript file to load and execute */
-    getPlanVisualizationScriptPath(): string | undefined;
+    getCustomVisualizationScriptPath(): string | undefined;
+
+    /** @returns custom visualization logic */
+    getCustomVisualization(): Promise<CustomVisualization | undefined>;
 }

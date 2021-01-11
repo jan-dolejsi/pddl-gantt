@@ -5,7 +5,7 @@
 
 import { Plan } from "pddl-workspace";
 import { appendPlanView, ATTR_PLAN, DIGITS, getHostElement, PlanView, PlanViewOptions, px, View } from "./PlanView";
-import { PlanVizSettings } from "./PlanVizSettings";
+import { DomainVizConfiguration } from "./DomainVizConfiguration";
 
 const PLAN_SELECTORS = "planSelectors";
 const PLAN_SELECTOR = "planSelector";
@@ -43,19 +43,19 @@ export class PlansView extends View {
         return this.planViews[planIndex];
     }
 
-    showPlans(plans: Plan[], planId = -1, settings?: PlanVizSettings): void {
+    showPlans(plans: Plan[], planId = -1, configuration?: DomainVizConfiguration): void {
         this.selectedPlan = planId < 0 ? plans.length - 1 : planId;
         this.plans = plans;
         this.planViews = [];
 
         this.createPlanSelectors();
-        this.createPlanViews(settings);
+        this.createPlanViews(configuration);
     }
 
-    addPlan(plan: Plan, settings?: PlanVizSettings): void {
+    addPlan(plan: Plan, configuration?: DomainVizConfiguration): void {
         const planIndex = this.plans.push(plan) - 1;
         this.createPlanSelectors();
-        this.planViewsEl && this.addPlanView(plan, planIndex, this.planViewsEl, settings);
+        this.planViewsEl && this.addPlanView(plan, planIndex, this.planViewsEl, configuration);
     }
 
     private setSelectedPlan(newSelectedPlan: number): void {
@@ -110,15 +110,15 @@ States evaluated: ${plan.statesEvaluated}`;
         parentEl.appendChild(planSelectorEl);
     }
 
-    private createPlanViews(settings?: PlanVizSettings): void {
+    private createPlanViews(configuration?: DomainVizConfiguration): void {
         const planViesEl = this.planViewsEl = this.getOrCreateBlankChildElement(PLAN_VIEWS);
 
-        this.plans.forEach((plan, planIndex) => this.addPlanView(plan, planIndex, planViesEl, settings));
+        this.plans.forEach((plan, planIndex) => this.addPlanView(plan, planIndex, planViesEl, configuration));
     }
 
-    private addPlanView(plan: Plan, planIndex: number, parent: HTMLDivElement, settings?: PlanVizSettings): void {
+    private addPlanView(plan: Plan, planIndex: number, parent: HTMLDivElement, configuration?: DomainVizConfiguration): void {
         const newPlanView = appendPlanView(parent, planIndex, this.options);
-        newPlanView.showPlan(plan, settings);
+        newPlanView.showPlan(plan, configuration);
         this.showSelectedPlan(planIndex);
         this.planViews[planIndex] = newPlanView;
     }
