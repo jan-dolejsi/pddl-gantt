@@ -249,7 +249,7 @@ Metric: 126.010
             </td>
             <td>
                 <textarea id="planVisualizationScript">
-function visualizeHtml(plan, width) {
+function visualizePlanHtml(plan, width) {
     const height = 100;
     return `<svg height="${height}" width="${width}">
         <rect width="${width}" height="${height}" style="fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)" />
@@ -258,11 +258,12 @@ function visualizeHtml(plan, width) {
 }
 module.exports = {
     // define one of the following functions:
-    visualizeHtml: visualizeHtml, 
-    visualizeInDiv: undefined, // function (hostDiv, plan, width)
-    visualizeSvg: undefined // function (plan, width)
+    visualizePlanHtml: visualizePlanHtml, 
+    visualizePlanInDiv: undefined, // function (hostDiv, plan, width)
+    visualizePlanSvg: undefined // function (plan, width)
 };
                 </textarea>
+                See other <a target="_blank" href="https://github.com/jan-dolejsi/pddl-gantt/blob/master/src/CustomVisualization.ts">options for plan/state visualization</a>.
             </td>
         </tr>
     </table>

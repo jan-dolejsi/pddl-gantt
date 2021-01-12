@@ -5,7 +5,15 @@
 
 This repo hosts the default plan visualization component liberated from the [VS Code extension for PDDL](https://marketplace.visualstudio.com/items?itemName=jan-dolejsi.pddl).
 
-[![Plan visualization in VS Code](https://raw.githubusercontent.com/wiki/jan-dolejsi/vscode-pddl/img/PDDL_plan.gif)]
+This sample shows the single-plan viewer and multi-plan viewer side by side:
+
+![Sample](https://github.com/jan-dolejsi/pddl-gantt/wiki/img/PDDL-Plan-Viewers-Sample.gif)
+
+Here is how it looks when integrated into VS Code:
+
+![Plan visualization in VS Code](https://raw.githubusercontent.com/wiki/jan-dolejsi/vscode-pddl/img/PDDL_plan_custom_vizualization.gif)
+
+To study the files used in the above example, see [blocksworld.planviz.json](https://github.com/jan-dolejsi/vscode-pddl-samples/blob/master/Blocksworld/blocksworld.planviz.json) and [blocksWorldViz.js](https://github.com/jan-dolejsi/vscode-pddl-samples/blob/master/Blocksworld/blocksWorldViz.js).
 
 ## Usage
 
@@ -78,9 +86,9 @@ function visualizeHtml(plan, width) {
 }
 module.exports = {
     // define one of the following functions:
-    visualizeHtml: visualizeHtml, 
-    visualizeInDiv: undefined, // function (hostDiv, plan, width)
-    visualizeSvg: undefined // function (plan, width)
+    visualizePlanHtml: visualizeHtml, 
+    visualizePlanInDiv: undefined, // function (hostDiv, plan, width)
+    visualizePlanSvg: undefined // function (plan, width)
 };
 ```
 
@@ -90,11 +98,11 @@ The custom visualization script is passed to the component via the second option
 
 ```javascript
 const customVisualizationJavascriptText = `
-function visualizeHtml(plan, width) {
+function myCustomVisualization(plan, width) {
     ...
 }
 module.exports = {
-    visualizeHtml: visualizeHtml, 
+    visualizeHtml: myCustomVisualization, 
 }
 `;
 
@@ -110,7 +118,7 @@ const configuration = new JsonDomainVizConfiguration({
             "parameterPattern": "^(to|from)$"
         }        
     ],
-    "customVisualization": "disregarded-path-in-this-usecase"
+    "customVisualization": "disregarded-path-in-this-use-case"
 }, () => customVisualizationJavascriptText);
 
 

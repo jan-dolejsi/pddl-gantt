@@ -198,7 +198,7 @@ describe("JsonDomainVizConfiguration", () => {
 
             const scriptText = `  
             module.exports = {
-                visualizeHtml: plan => "${vizTable}" 
+                visualizePlanHtml: plan => "${vizTable}" 
             }
             `;
 
@@ -213,7 +213,7 @@ describe("JsonDomainVizConfiguration", () => {
             expect(await configuration.getCustomVisualizationScript(), "custom viz script").to.equal(scriptText);
             expect(scriptRequested, "script requested").to.equal(script);
             const customVisualization = await configuration.getCustomVisualization();
-            const actualViz = customVisualization?.visualizeHtml?.(new Plan([]), 100);
+            const actualViz = customVisualization?.visualizePlanHtml?.(new Plan([]), 100);
             expect(actualViz, "viz function output").equal(vizTable);
         });
     });
@@ -250,13 +250,13 @@ describe("JsonDomainVizConfiguration", () => {
             // WHEN
             let scriptRequested: string | undefined;
             const configuration = new JsonDomainVizConfiguration(configurationInput, undefined, {
-                visualizeHtml: mockVisualization
+                visualizePlanHtml: mockVisualization
             });
 
             // THEN
             expect(await configuration.getCustomVisualization(), "custom viz script").to.not.be.undefined;
             const customVisualization = await configuration.getCustomVisualization();
-            const actualSvg = customVisualization?.visualizeHtml?.(new Plan([]), 300);
+            const actualSvg = customVisualization?.visualizePlanHtml?.(new Plan([]), 300);
             expect(actualSvg, "actual svg").to.include("svg");
             expect(scriptRequested, "script requested").to.be.undefined;
         });

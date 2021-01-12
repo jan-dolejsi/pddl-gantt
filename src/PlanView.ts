@@ -159,13 +159,13 @@ export class PlanView extends View {
     private async visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, configuration?: DomainVizConfiguration): Promise<void> {
         const viz = await configuration?.getCustomVisualization();
         if (viz) {
-            if (viz.visualizeHtml) {
-                const vizHtml = viz.visualizeHtml(plan, this.options.displayWidth);
+            if (viz.visualizePlanHtml) {
+                const vizHtml = viz.visualizePlanHtml(plan, this.options.displayWidth);
                 planVizDiv.innerHTML = vizHtml;
-            } else if (viz.visualizeInDiv) {
-                viz.visualizeInDiv(planVizDiv, plan, this.options.displayWidth);
-            } else if (viz.visualizeSvg) {
-                const vizSvg = viz.visualizeSvg(plan, this.options.displayWidth);
+            } else if (viz.visualizePlanInDiv) {
+                viz.visualizePlanInDiv(planVizDiv, plan, this.options.displayWidth);
+            } else if (viz.visualizePlanSvg) {
+                const vizSvg = viz.visualizePlanSvg(plan, this.options.displayWidth);
                 planVizDiv.appendChild(vizSvg);
             }
         }

@@ -9,16 +9,17 @@ import { Plan } from "pddl-workspace";
 /** 
  * Interface for objects to be returned by custom plan visualization scripts. 
  * The implementations should initialize _one_ of the visualizeXyz methods.
- * If more then one visualization method is implemented, the framework will use the first one (in order of appearance in this interface).
+ * If more then one visualization method is implemented, the framework will
+ * use the first one (in order of declaration in this interface).
  */
 export interface CustomVisualization {
     
     /**
-     * Generates HTML text that will be inserted to the page.
+     * Generates HTML text for the `plan` that will be inserted to the page.
      * @param plan plan to be visualized
      * @param displayWidth desired width in pixels
      */
-    visualizeHtml?(plan: Plan, displayWidth: number): string;
+    visualizePlanHtml?(plan: Plan, displayWidth: number): string;
 
     /**
      * Populates the `planVizDiv` element with the plan visualization.
@@ -26,12 +27,12 @@ export interface CustomVisualization {
      * @param plan plan to be visualized
      * @param displayWidth desired width in pixels
      */
-    visualizeInDiv?(planVizDiv: HTMLDivElement, plan: Plan, displayWidth: number): void;
+    visualizePlanInDiv?(planVizDiv: HTMLDivElement, plan: Plan, displayWidth: number): void;
 
     /**
-     * Creates an SVG object, which will be inserted into the host element on the page.
+     * Creates an SVG object representing the given `plan`, which will be inserted into the host element on the page.
      * @param plan plan to be visualized
      * @param displayWidth desired width in pixels
      */
-    visualizeSvg?(plan: Plan, displayWidth: number): SVGElement;
+    visualizePlanSvg?(plan: Plan, displayWidth: number): SVGElement;
 }
