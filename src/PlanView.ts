@@ -66,7 +66,7 @@ export class View {
     }
 }
 
-const PLAN_VIZ = 'planViz';
+const CUSTOM_PLAN_VIZ = 'planViz';
 const GANTT = 'gantt';
 const RESOURCE_UTILIZATION = 'resourceUtilization';
 const LINE_CHARTS = 'lineCharts';
@@ -93,6 +93,7 @@ export class PlanView extends View {
     }
     
     clear(): void {
+        this.getOrCreateBlankChildElement(CUSTOM_PLAN_VIZ);
         this.getOrCreateBlankChildElement(GANTT);
         this.getOrCreateBlankChildElement(RESOURCE_UTILIZATION);
         this.getOrCreateBlankChildElement(LINE_CHARTS);
@@ -122,7 +123,7 @@ export class PlanView extends View {
     showPlan(plan: Plan, configuration?: DomainVizConfiguration): void {
         this.plan = plan = defaultDomain(capitalize(plan));
 
-        const planVizDiv = this.getOrCreateBlankChildElement(PLAN_VIZ);
+        const planVizDiv = this.getOrCreateBlankChildElement(CUSTOM_PLAN_VIZ);
         this.tryVisualizePlan(planVizDiv, plan, configuration);
 
         const stepsToDisplay = plan.steps
@@ -454,7 +455,7 @@ export class PlanView extends View {
 
         let fromArgument = 0; // search from this argument positional index
         do {
-            const indexOfArgument = step.getObjects().indexOf(obj.toLowerCase(), fromArgument);
+            const indexOfArgument = step.getObjects().indexOf(obj, fromArgument);
             fromArgument = indexOfArgument + 1;
             if (indexOfArgument > -1 && indexOfArgument < liftedAction.parameters.length) {
                 const parameter = liftedAction.parameters[indexOfArgument];

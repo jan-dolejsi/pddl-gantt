@@ -49,11 +49,11 @@ function initialize() {
 
 async function addPlan() {
 
-    const domainText = document.getElementById("domainText")?.value ?? "";
-    const problemText = document.getElementById("problemText")?.value ?? "";
-    const planText = document.getElementById("planText")?.value ?? "";
-    const configurationText = document.getElementById("configuration")?.value ?? "{}";
-    const planVisualizationText = document.getElementById("planVisualizationScript")?.value;
+    const domainText: string = document.getElementById("domainText")?.value ?? "";
+    const problemText: string = document.getElementById("problemText")?.value ?? "";
+    const planText: string = document.getElementById("planText")?.value ?? "";
+    const configurationText: string = document.getElementById("configuration")?.value ?? "{}";
+    const planVisualizationText: string = document.getElementById("planVisualizationScript")?.value;
 
     const domain = parser.PddlDomainParser.parseText(domainText);
     const problem = await parser.PddlProblemParser.parseText(problemText);
