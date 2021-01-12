@@ -5,7 +5,9 @@
 
  /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction } from "pddl-workspace";
+import { URI } from "vscode-uri";
+import { utils } from "pddl-workspace";
+import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction, parser, SimpleDocumentPositionResolver, Action, ProblemInfo, TypeObjectMap, DurativeAction, InstantAction, Parameter, PddlRange } from "pddl-workspace";
 import { drawChart, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
 import { DomainVizConfiguration } from "./DomainVizConfiguration";
@@ -118,7 +120,7 @@ export class PlanView extends View {
     }
 
     showPlan(plan: Plan, configuration?: DomainVizConfiguration): void {
-        this.plan = capitalize(plan);
+        this.plan = plan = defaultDomain(capitalize(plan));
 
         const planVizDiv = this.getOrCreateBlankChildElement(PLAN_VIZ);
         this.tryVisualizePlan(planVizDiv, plan, configuration);
@@ -489,8 +491,8 @@ export class PlanView extends View {
 
         const table = document.createElement("table");
 
-        plan.domain.getTypes()
-            .filter(type => type !== "object")
+        plan.domain.getTypesInclObject()
+            .filter(type => type !== "object" || (allTypeObjects.getTypeCaseInsensitive(type)?.getObjects().length ?? 0) > 0)
             .forEach(type => {
                 const typeObjects = allTypeObjects.getTypeCaseInsensitive(type);
                 typeObjects && this.renderTypeSwimLanes(table, type, typeObjects.getObjects(), plan, configuration);
@@ -669,4 +671,34 @@ export function appendPlanView(parent: HTMLDivElement, planIndex: number, option
     const planView = new PlanView(hostElement, planIndex, options);
     parent.appendChild(hostElement);
     return planView;
+}
+
+/** Creates a default domain and problem, if the plan does not have one associated. */
+function defaultDomain(plan: Plan): Plan {
+    if (plan.domain === undefined && plan.problem === undefined) {
+        const defaultDomain = new DomainInfo(URI.parse('file:///mock/domain'), 0, 'mock', parser.PddlSyntaxTree.EMPTY, new SimpleDocumentPositionResolver(''));
+        const actions = new Set<Action>(plan.steps.map(step => toDefaultAction(step)))
+        defaultDomain.setActions([...actions]);
+        defaultDomain.setTypeInheritance(new utils.DirectionalGraph().addEdge("object"));
+        
+        const defaultProblem = new ProblemInfo(URI.parse('file:///mock/problem'), 0, 'mock', 'mock', parser.PddlSyntaxTree.EMPTY, new SimpleDocumentPositionResolver(''));;
+        const objectNames = plan.steps.map(step => step.getObjects()).reduce((prev, curr) => prev.concat(curr)).sort();
+        const objectMap = new TypeObjectMap().addAll('object', objectNames);
+        defaultProblem.setObjects(objectMap);
+        
+        return new Plan(plan.steps, defaultDomain, defaultProblem, plan.now,
+            plan.helpfulActions);
+    } else {
+        return plan;
+    }
+}
+
+/** Creates a default action from the plan step. */
+function toDefaultAction(planStep: PlanStep): Action {
+    const parameters = planStep.getObjects().map((_o, index) => new Parameter("p" + index, "object"));
+    if (planStep.isDurative) {
+        return new DurativeAction(planStep.getActionName(), parameters, PddlRange.createUnknown(), undefined);
+    } else {
+        return new InstantAction(planStep.getActionName(), parameters, PddlRange.createUnknown());
+    }
 }
