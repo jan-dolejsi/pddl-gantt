@@ -289,7 +289,7 @@ export class PlanView extends View {
     
     /** Converts the _time_ argument to view coordinates */
     private toViewCoordinates(time: number | undefined, plan: Plan): number {
-        return (time ?? 0) / plan.makespan * this.options.displayWidth;
+        return (time ?? 0) / (plan.makespan + this.options.epsilon) * this.options.displayWidth;
     }
 
     private toActionLink(actionName: string, plan: Plan): Node {
