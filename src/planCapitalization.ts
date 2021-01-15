@@ -33,7 +33,7 @@ export function capitalize(plan: Plan): Plan {
     return capitalizedPlan;
 }
 
-function capitalizeStep(step: PlanStep, actionNames: string[], problem: ProblemInfo): PlanStep {
+export function capitalizeStep(step: PlanStep, actionNames: string[], problem: ProblemInfo): PlanStep {
     let changed = false;
     let changedActionName = step.getActionName();
     if (!actionNames.includes(step.getActionName())) {
@@ -48,12 +48,18 @@ function capitalizeStep(step: PlanStep, actionNames: string[], problem: ProblemI
     for (let i = 0; i < step.getObjects().length; i++) {
         const origObject = step.getObjects()[i];
 
-        const matchingObject = problem.getObjectsTypeMap()
-            .getTypeOf(origObject)?.getObjects()
-            ?.find(o => o.toLowerCase() === origObject.toLowerCase());
-        if (matchingObject) {
-            changed = true;
-            changedObjects[i] = matchingObject;
+        const objectExists = problem.getObjectsTypeMap().getTypeOf(origObject)?.hasObject(origObject);
+            
+        if (!objectExists) {
+            const matchingObject = problem.getObjectsTypeMap().getTypeOfCaseInsensitive(origObject)?.getObjects()
+                ?.find(o => o.toLowerCase() === origObject.toLowerCase());
+            if (matchingObject) {
+                changed = true;
+                changedObjects[i] = matchingObject;
+            }
+            else {
+                changedObjects[i] = origObject;
+            }
         } else {
             changedObjects[i] = origObject;
         }
