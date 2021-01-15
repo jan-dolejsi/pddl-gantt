@@ -1,6 +1,6 @@
 {
   "name": "pddl-gantt",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Plan visualization for AI-Planning plans. The package includes HTML components for Gantt, swimlane and line plot visualization of plan originating from AI Planning solvers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
