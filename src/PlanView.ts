@@ -6,12 +6,13 @@
  /* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { URI } from "vscode-uri";
-import { utils } from "pddl-workspace";
+import { utils, VariableValue } from "pddl-workspace";
 import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction, parser, SimpleDocumentPositionResolver, Action, ProblemInfo, TypeObjectMap, DurativeAction, InstantAction, Parameter, PddlRange } from "pddl-workspace";
 import { drawChart, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
 import { DomainVizConfiguration } from "./DomainVizConfiguration";
 import { SwimLane } from "./SwimLane";
+import { CustomVisualization } from "./CustomVisualization";
 
 export interface PlanViewOptions {
     epsilon: number;
@@ -22,6 +23,7 @@ export interface PlanViewOptions {
     onActionSelected?: (actionName: string) => void;
     onHelpfulActionSelected?: (actionName: string) => void;
     onLinePlotsVisible?: (planView: PlanView) => void;
+    onFinalStateVisible?: (planView: PlanView) => void;
 }
 
 export const DIGITS = 4;
@@ -82,6 +84,7 @@ export class PlanView extends View {
     private handleScrollEvent: (() => void) | undefined;
     private linePlotsGenerated = false;
     private plan: Plan | undefined;
+    private customVisualization: CustomVisualization | undefined;
     private visible = true;
 
     constructor(hostElement: HTMLDivElement, public readonly planIndex: number, options: PlanViewOptions) {
@@ -99,6 +102,7 @@ export class PlanView extends View {
         this.getOrCreateBlankChildElement(LINE_CHARTS);
 
         this.plan = undefined;
+        this.customVisualization = undefined;
         this.deactivateLinePlotPlaceholder();
     }
 
@@ -157,16 +161,21 @@ export class PlanView extends View {
     }
 
     private async visualizePlan(planVizDiv: HTMLDivElement, plan: Plan, configuration?: DomainVizConfiguration): Promise<void> {
-        const viz = await configuration?.getCustomVisualization();
-        if (viz) {
-            if (viz.visualizePlanHtml) {
-                const vizHtml = viz.visualizePlanHtml(plan, this.options.displayWidth);
+        this.customVisualization = await configuration?.getCustomVisualization();
+        if (this.customVisualization) {
+            if (this.customVisualization.visualizePlanHtml) {
+                const vizHtml = this.customVisualization.visualizePlanHtml(plan, this.options.displayWidth);
                 planVizDiv.innerHTML = vizHtml;
-            } else if (viz.visualizePlanInDiv) {
-                viz.visualizePlanInDiv(planVizDiv, plan, this.options.displayWidth);
-            } else if (viz.visualizePlanSvg) {
-                const vizSvg = viz.visualizePlanSvg(plan, this.options.displayWidth);
+            } else if (this.customVisualization.visualizePlanInDiv) {
+                this.customVisualization.visualizePlanInDiv(planVizDiv, plan, this.options.displayWidth);
+            } else if (this.customVisualization.visualizePlanSvg) {
+                const vizSvg = this.customVisualization.visualizePlanSvg(plan, this.options.displayWidth);
                 planVizDiv.appendChild(vizSvg);
+            } else if (this.customVisualization.visualizeStateHtml ||
+                this.customVisualization.visualizeStateInDiv ||
+                this.customVisualization.visualizeStateSvg) {
+                
+                this.options.onFinalStateVisible?.(this);
             }
         }
     }
@@ -178,6 +187,24 @@ export class PlanView extends View {
         }
     }
     
+    showFinalState(finalState: VariableValue[]): void {
+        if (!this.customVisualization || !this.plan) {
+            return;
+        }
+
+        const planVizDiv = this.getOrCreateBlankChildElement(CUSTOM_PLAN_VIZ);
+
+        if (this.customVisualization.visualizeStateHtml) {
+            const vizHtml = this.customVisualization.visualizeStateHtml(this.plan, finalState, this.options.displayWidth);
+            planVizDiv.innerHTML = vizHtml;
+        } else if (this.customVisualization.visualizeStateInDiv) {
+            this.customVisualization.visualizeStateInDiv(planVizDiv, this.plan, finalState, this.options.displayWidth);
+        } else if (this.customVisualization.visualizeStateSvg) {
+            const vizSvg = this.customVisualization.visualizeStateSvg(this.plan, finalState, this.options.displayWidth);
+            planVizDiv.appendChild(vizSvg);
+        }
+}
+
     private showGantt(ganttDiv: HTMLDivElement, plan: Plan, stepsToDisplay: PlanStep[]): void {
         // split this to two batches and insert helpful actions in between
         const planHeadSteps = stepsToDisplay

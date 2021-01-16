@@ -92,6 +92,34 @@ module.exports = {
 };
 ```
 
+If the final state of the plan is more appropriate for visualization (as oppose to the plan itself),
+the visualization logic may look this way:
+
+```javascript
+/**
+ * Populates the `planVizDiv` element with the plan visualization of the `finalState`.
+ * @param {HTMLDivElement} planVizDiv host element on the page
+ * @param {Plan} plan plan to be visualized
+ * @param {{variableName: string, value: number | boolean}[]} finalState final state of the `plan`
+ * @param {number} displayWidth desired width in pixels
+ */
+function visualizeStateInDiv(planVizDiv, plan, finalState, displayWidth) {
+  console.log(finalState);
+  for (const v of finalState) {
+    console.log(`${v.variableName}: ${v.value}`);
+  }
+}
+
+module.exports = {
+   visualizeStateInDiv: visualizeStateInDiv
+};
+```
+
+The above example merely prints the final state values to the browser console.\
+Note that the `finalState` is requested by the `PlanView` using the `onFinalStateVisible` event and
+the `PlanView.showFinalState(finalState: VariableValue[])` callback.
+The `finalState` values can be calculated using the `PlanEvaluator` from the `ai-planning-val.js` package.
+
 The detailed visualization function signatures may be seen in [CustomVisualization.ts](src\CustomVisualization.ts).
 
 The custom visualization script is passed to the component via the second optional `showPlan()` argument.

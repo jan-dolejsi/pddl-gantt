@@ -4,7 +4,7 @@
 import { createPlanView, PlanView } from "./PlanView";
 import { createPlansView, PlansView } from "./PlansView";
 import { JsonDomainVizConfiguration } from "./JsonDomainVizConfiguration";
-import { parser, Plan, HappeningType, utils } from "pddl-workspace";
+import { parser, Plan, HappeningType, utils, VariableValue } from "pddl-workspace";
 
 function onPlanSelected(planIndex: number): void {
     console.log(`Plan selected: ${planIndex}`);
@@ -24,6 +24,11 @@ function onLinePlotsVisible(planView: PlanView): void {
     setTimeout(() => planView.showPlanLinePlots("fuel", "l", ["truck1", "truck2", "truck3"], [[1, 4, 6, 4], [4, 3, 5, 3], [5, 7, null, 2], [6, 7, 8, 2]]), 2000);
 }
 
+function onFinalStateVisible(planView: PlanView): void {
+    console.log(`Rendering final state using mock data ${planView.planIndex}`);
+    setTimeout(() => planView.showFinalState([new VariableValue("predicate1", true), new VariableValue("fluent2", 3.14)]), 1000);
+}
+
 let planView: PlanView | undefined;
 let plansView: PlansView | undefined;
 
@@ -35,7 +40,8 @@ function initialize() {
         disableSwimlanes: false, displayWidth: width, epsilon: EPSILON,
         onActionSelected: onActionSelected,
         onHelpfulActionSelected: onHelpfulActionSelected,
-        onLinePlotsVisible: onLinePlotsVisible
+        onLinePlotsVisible: onLinePlotsVisible,
+        onFinalStateVisible: onFinalStateVisible
     });
 
     plansView = createPlansView("plans", {
@@ -43,6 +49,7 @@ function initialize() {
         onActionSelected: onActionSelected,
         onHelpfulActionSelected: onHelpfulActionSelected,
         onLinePlotsVisible: onLinePlotsVisible,
+        onFinalStateVisible: onFinalStateVisible,
         onPlanSelected: onPlanSelected
     });
 }

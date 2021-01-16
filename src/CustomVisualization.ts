@@ -4,7 +4,7 @@
  * ------------------------------------------------------------------------------------------ */
 'use strict';
 
-import { Plan } from "pddl-workspace";
+import { Plan, VariableValue } from "pddl-workspace";
 
 /** 
  * Interface for objects to be returned by custom plan visualization scripts. 
@@ -35,4 +35,30 @@ export interface CustomVisualization {
      * @param displayWidth desired width in pixels
      */
     visualizePlanSvg?(plan: Plan, displayWidth: number): SVGElement;
+
+    /**
+     * Generates HTML text for the `finalState` of the `plan` that will be inserted to the page.
+     * @param plan plan to be visualized
+     * @param finalState final state of the `plan`
+     * @param displayWidth desired width in pixels
+     */
+    visualizeStateHtml?(plan: Plan, finalState: VariableValue[], displayWidth: number): string;
+
+    /**
+     * Populates the `planVizDiv` element with the plan visualization of the `finalState`.
+     * @param planVizDiv host element on the page
+     * @param plan plan to be visualized
+     * @param finalState final state of the `plan`
+     * @param displayWidth desired width in pixels
+     */
+    visualizeStateInDiv?(planVizDiv: HTMLDivElement, plan: Plan, finalState: VariableValue[], displayWidth: number): void;
+
+    /**
+     * Creates an SVG object representing the given `finalState` of the `plan`,
+     * which will be inserted into the host element on the page.
+     * @param plan plan to be visualized
+     * @param finalState final state of the `plan`
+     * @param displayWidth desired width in pixels
+     */
+    visualizeStateSvg?(plan: Plan, finalState: VariableValue[], displayWidth: number): SVGElement;
 }
