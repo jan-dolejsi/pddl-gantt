@@ -203,7 +203,7 @@ export class PlanView extends View {
             const vizSvg = this.customVisualization.visualizeStateSvg(this.plan, finalState, this.options.displayWidth);
             planVizDiv.appendChild(vizSvg);
         }
-}
+    }
 
     private showGantt(ganttDiv: HTMLDivElement, plan: Plan, stepsToDisplay: PlanStep[]): void {
         // split this to two batches and insert helpful actions in between
