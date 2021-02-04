@@ -70,7 +70,7 @@ try {
     chartDefined = true;
 }
 catch (err) {
-    console.warn(err);
+    console.warn(err.message ?? err);
 }
 
 
@@ -89,7 +89,8 @@ export function drawChart(chartDiv: HTMLDivElement, functionName: string, unit: 
 
     const options = {
         hAxis: {
-            title: 'Time'
+            title: 'Time',
+            minValue: 0
         },
         vAxis: {
             title: unit,
