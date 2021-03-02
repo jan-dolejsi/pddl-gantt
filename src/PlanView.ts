@@ -288,7 +288,7 @@ export class PlanView extends View {
 
     private renderHelpfulAction(helpfulActions: HTMLDivElement, index: number, helpfulAction: HelpfulAction): void {
         const suffix = PlanView.getActionSuffix(helpfulAction);
-        const beautifiedName = `${helpfulAction.actionName}<sub>${suffix}</sub>`;
+        const beautifiedName = `${helpfulAction.actionName}<sub>${suffix}</sub> `;
 
         helpfulActions.appendChild(document.createTextNode(`${index + 1}. `));
 
@@ -613,7 +613,7 @@ export class PlanView extends View {
             this.options.onLinePlotsVisible?.(this);
         }
         else {
-            // defer cart loading
+            // defer chart loading
 
             // show loader
             this.addLoader(lineCharts);
@@ -626,14 +626,14 @@ export class PlanView extends View {
                 if (lineChartVisible) {
                     planView.options.onLinePlotsVisible?.(planView);
                     // unsubscribe the scroll events
-                    // todo: can we call the planView.deactivateLinePlotPlaceholder(handleScrollEvent);
-                    document.removeEventListener("scroll", handleScrollEvent);
-                    document.removeEventListener("resize", handleScrollEvent);
+                    planView.deactivateLinePlotPlaceholder();
                 }
             };
 
             document.addEventListener('scroll', scrollHandler, { passive: true });
             document.addEventListener("resize", scrollHandler, { passive: true });
+            // also sign-up to the mouse over, in case the window gets expanded without the content scrolling
+            lineCharts.addEventListener("mouseenter", scrollHandler)
 
             // retain the handler, so it may be cleared along with the plan
             this.handleScrollEvent = scrollHandler;
@@ -645,6 +645,7 @@ export class PlanView extends View {
         if (this.handleScrollEvent !== undefined) {
             document.removeEventListener("scroll", this.handleScrollEvent);
             document.removeEventListener("resize", this.handleScrollEvent);
+            this.lineCharts?.removeEventListener("mouseenter", this.handleScrollEvent)
             this.handleScrollEvent = undefined;
         }
     }
