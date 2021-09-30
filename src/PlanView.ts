@@ -711,7 +711,7 @@ function defaultDomain(plan: Plan): Plan {
         defaultDomain.setTypeInheritance(new utils.DirectionalGraph().addEdge("object"));
         
         const defaultProblem = new ProblemInfo(URI.parse('file:///mock/problem'), 0, 'mock', 'mock', parser.PddlSyntaxTree.EMPTY, new SimpleDocumentPositionResolver(''));;
-        const objectNames = plan.steps.map(step => step.getObjects()).reduce((prev, curr) => prev.concat(curr)).sort();
+        const objectNames = plan.steps.map(step => step.getObjects()).reduce((prev, curr) => prev.concat(curr), []).sort();
         const objectMap = new TypeObjectMap().addAll('object', objectNames);
         defaultProblem.setObjects(objectMap);
         
