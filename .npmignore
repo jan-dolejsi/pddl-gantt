@@ -10,3 +10,5 @@ out-sample/
 dist/sample.*
 debug.log
 switch-to*.*
+.github/
+todo.md

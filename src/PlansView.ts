@@ -71,18 +71,18 @@ export class PlansView extends View {
 
         planSelectorsEl.style.display = this.plans.length > 1 ? "flex" : "none";
 
-        const maxCost = Math.max(...this.plans.map(plan => plan.cost ?? 0));
+        const maxMetric = Math.max(...this.plans.map(plan => plan.metric ?? 0));
 
         this.plans.forEach((plan, planIndex) =>
-            this.createPlanSelector(plan, planIndex, this.selectedPlan, maxCost, planSelectorsEl));
+            this.createPlanSelector(plan, planIndex, this.selectedPlan, maxMetric, planSelectorsEl));
 
         this.scrollPlanSelectorIntoView(this.selectedPlan);
     }
 
-    private createPlanSelector(plan: Plan, planIndex: number, selectedPlan: number, maxCost: number, parentEl: HTMLDivElement): void {
+    private createPlanSelector(plan: Plan, planIndex: number, selectedPlan: number, maxMetric: number, parentEl: HTMLDivElement): void {
 
-        const normalizedCost = (plan.metric ?? 0) / maxCost * 100;
-        const costRounded = plan.metric ? plan.metric.toFixed(DIGITS) : NaN.toString();
+        const normalizedMetric = (plan.metric ?? 0) / maxMetric * 100;
+        const costRounded = plan.metric !== undefined ? plan.metric.toFixed(DIGITS) : NaN.toString();
         const tooltip = `Plan #${planIndex}
 Metric value / cost: ${plan.metric}
 Makespan: ${plan.makespan}
@@ -103,7 +103,7 @@ States evaluated: ${plan.statesEvaluated}`;
 
         const bar = document.createElement("div");
         bar.className = "planMetricBar";
-        bar.style.height = px(normalizedCost);
+        bar.style.height = px(normalizedMetric);
         bar.title = tooltip;
         planSelectorEl.appendChild(bar);
 
