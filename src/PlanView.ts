@@ -8,7 +8,7 @@
 import { URI } from "vscode-uri";
 import { utils, VariableValue } from "pddl-workspace";
 import { DomainInfo, Plan, PlanStep, PlanStepCommitment, HappeningType, HelpfulAction, parser, SimpleDocumentPositionResolver, Action, ProblemInfo, TypeObjectMap, DurativeAction, InstantAction, Parameter, PddlRange } from "pddl-workspace";
-import { drawChart, isInViewport } from "./charts";
+import { drawChart, ErrorWithMessage, isInViewport } from "./charts";
 import { capitalize } from "./planCapitalization";
 import { DomainVizConfiguration } from "./DomainVizConfiguration";
 import { SwimLane } from "./SwimLane";
@@ -147,9 +147,10 @@ export class PlanView extends View {
         try {
             this.visualizePlan(planVizDiv, plan, configuration);
         }
-        catch (ex) {
+        catch (ex: unknown) {
             planVizDiv.style.width = px(this.options.displayWidth);
-            this.addError(planVizDiv, ex.message ?? '' + ex);
+            const error = ex as ErrorWithMessage;
+            this.addError(planVizDiv, error.message ?? '' + error);
         }
     }
 

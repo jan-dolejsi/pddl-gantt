@@ -73,8 +73,9 @@ try {
     google.charts.load('current', { packages: ['corechart', 'line'] });
     chartDefined = true;
 }
-catch (err) {
-    console.warn(err.message ?? err);
+catch (err: unknown) {
+    const error = err as ErrorWithMessage;
+    console.warn(error.message ?? error);
 }
 
 
@@ -107,4 +108,8 @@ export function drawChart(chartDiv: HTMLDivElement, functionName: string, unit: 
     const chart = new google.visualization.LineChart(chartDiv);
 
     chart.draw(data, options);
+}
+
+export interface ErrorWithMessage {
+    message: string;
 }
