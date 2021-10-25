@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-// @ts-nocheck
 
 import { createPlanView, PlanView } from "./PlanView";
 import { createPlansView, PlansView } from "./PlansView";
@@ -54,13 +53,21 @@ function initialize() {
     });
 }
 
+function getTextAreaText(id: string, defaultValue=""): string {
+    return (getElementByIdOrThrow(id) as HTMLTextAreaElement)?.value ?? defaultValue;
+}
+
+function getInputText(id: string, defaultValue=""): string {
+    return (getElementByIdOrThrow(id) as HTMLInputElement)?.value ?? defaultValue;
+}
+
 async function addPlan() {
 
-    const domainText: string = document.getElementById("domainText")?.value ?? "";
-    const problemText: string = document.getElementById("problemText")?.value ?? "";
-    const planText: string = document.getElementById("planText")?.value ?? "";
-    const configurationText: string = document.getElementById("configuration")?.value ?? "{}";
-    const planVisualizationText: string = document.getElementById("planVisualizationScript")?.value;
+    const domainText: string = getTextAreaText("domainText");
+    const problemText: string = getTextAreaText("problemText");
+    const planText: string = getTextAreaText("planText")
+    const configurationText: string = getTextAreaText("configuration", "{}");
+    const planVisualizationText: string = getTextAreaText("planVisualizationScript");
 
     const domain = parser.PddlDomainParser.parseText(domainText);
     const problem = await parser.PddlProblemParser.parseText(problemText);
@@ -69,10 +76,10 @@ async function addPlan() {
 
     const configuration = JsonDomainVizConfiguration.withCustomVisualizationScript(JSON.parse(configurationText), planVisualizationText);
 
-    const now = parseFloat(document.getElementById("now")?.value ?? "");
+    const now = parseFloat(getInputText("now"));
     
     const plan = new Plan(planInfo.getSteps(), domain, problem, now, [{ actionName: 'helpful1', kind: HappeningType.INSTANTANEOUS }]);
-    plan.metric = planInfo.metric;
+    plan.metric = planInfo.metric ?? Number.NaN;
     
     // simulate the plan sent over JSON message
     const reHydratedPlan = Plan.clone(JSON.parse(JSON.stringify(utils.serializationUtils.makeSerializable(plan))));
@@ -86,6 +93,14 @@ function clear(): void {
     plansView?.clear();
 }
 
-document.getElementById("addPlan").onclick = addPlan;
-document.getElementById("clear").onclick = clear;
+function getElementByIdOrThrow(id: string): HTMLElement {
+    const element = document.getElementById(id);
+    if (!element) {
+        throw new Error(`Element ${id} not found in document.`);
+    }
+    return element;
+}
+    
+getElementByIdOrThrow("addPlan").onclick = addPlan;
+getElementByIdOrThrow("clear").onclick = clear;
 document.body.onload = () => initialize();
