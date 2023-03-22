@@ -1,6 +1,6 @@
 {
   "name": "pddl-gantt",
-  "version": "1.5.12",
+  "version": "1.5.13",
   "description": "Plan visualization for AI-Planning plans. The package includes HTML components for Gantt, swimlane and line plot visualization of plan originating from AI Planning solvers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -23,6 +23,10 @@
   ],
   "author": "Jan Dolejsi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jan-dolejsi/pddl-gantt"
+  },
   "devDependencies": {
     "@types/chai": "4.3.1",
     "@types/mocha": "^9.1.0",
@@ -41,7 +45,7 @@
     "watchify": "^3.11.1"
   },
   "dependencies": {
-    "pddl-workspace": "^7.2.2",
+    "pddl-workspace": "^8.0.0",
     "vscode-uri": "^3.0.3"
   }
 }
