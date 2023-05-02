@@ -1,6 +1,6 @@
 {
   "name": "pddl-gantt",
-  "version": "1.5.15",
+  "version": "1.6.0",
   "description": "Plan visualization for AI-Planning plans. The package includes HTML components for Gantt, swimlane and line plot visualization of plan originating from AI Planning solvers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/chai": "4.3.1",
     "@types/mocha": "^9.1.0",
-    "@types/node": "14.14.31",
+    "@types/node": "18.16.3",
     "@types/nunjucks": "^3.2.1",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
@@ -45,7 +45,7 @@
     "watchify": "^4.0.0"
   },
   "dependencies": {
-    "pddl-workspace": "^9.0.3",
+    "pddl-workspace": "^10.0.0",
     "vscode-uri": "^3.0.3"
   }
 }
