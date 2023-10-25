@@ -1,6 +1,6 @@
 {
   "name": "pddl-gantt",
-  "version": "1.6.0",
+  "version": "2.0.0",
   "description": "Plan visualization for AI-Planning plans. The package includes HTML components for Gantt, swimlane and line plot visualization of plan originating from AI Planning solvers.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,24 +28,24 @@
     "url": "https://github.com/jan-dolejsi/pddl-gantt"
   },
   "devDependencies": {
-    "@types/chai": "4.3.1",
-    "@types/mocha": "^9.1.0",
+    "@types/chai": "4.3.9",
+    "@types/mocha": "^10.0.3",
     "@types/node": "18.16.3",
-    "@types/nunjucks": "^3.2.1",
-    "@typescript-eslint/eslint-plugin": "^5.26.0",
-    "@typescript-eslint/parser": "^5.26.0",
-    "browserify": "^16.5.2",
-    "chai": "^4.3.6",
+    "@types/nunjucks": "^3.2.5",
+    "@typescript-eslint/eslint-plugin": "^6.9.0",
+    "@typescript-eslint/parser": "^6.9.0",
+    "browserify": "^17.0.0",
+    "chai": "^4.3.10",
     "copyfiles": "^2.4.1",
-    "eslint": "^8.14.0",
-    "mocha": "^9.2.2",
+    "eslint": "^8.52.0",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "tsify": "^5.0.4",
-    "typescript": "^4.6.4",
+    "typescript": "^5.2.2",
     "watchify": "^4.0.0"
   },
   "dependencies": {
-    "pddl-workspace": "^10.0.0",
-    "vscode-uri": "^3.0.3"
+    "pddl-workspace": "^11.0.0",
+    "vscode-uri": "^3.0.8"
   }
 }
